@@ -15,7 +15,7 @@
  * The encoding can be overrided, see "[optional]: weak functions" in "microvg_path.h"
  *
  * @author MicroEJ Developer Team
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 #include "microvg_configuration.h"
@@ -89,6 +89,11 @@ static int32_t _close_path(MICROVG_PATH_HEADER_t* path, jint length, jfloat x1, 
 // -----------------------------------------------------------------------------
 // Specific path format functions [optional]: weak functions
 // -----------------------------------------------------------------------------
+
+// See the header file for the function documentation
+BSP_DECLARE_WEAK_FCNT void MICROVG_PATH_initialize(void) {
+	// nothing to do
+}
 
 // See the header file for the function documentation
 BSP_DECLARE_WEAK_FCNT uint32_t MICROVG_PATH_get_path_header_size(void) {

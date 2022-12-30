@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: basic implementation
  * of matrix APIs.
  * @author MicroEJ Developer Team
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 // -----------------------------------------------------------------------------
@@ -36,6 +36,22 @@ void LLVG_MATRIX_IMPL_identity(jfloat* matrix) {
 // See the header file for the function documentation
 void LLVG_MATRIX_IMPL_copy(jfloat* dest, jfloat* src) {
 	(void)memcpy((void*)dest, (void*)src, sizeof(float) * LLVG_MATRIX_SIZE);
+}
+
+// See the header file for the function documentation
+void LLVG_MATRIX_IMPL_multiply(jfloat* dest, jfloat* a, jfloat* b) {
+
+	dest[0] = (a[0] * b[0]) + (a[1] * b[3]) + (a[2] * b[6]);
+	dest[1] = (a[0] * b[1]) + (a[1] * b[4]) + (a[2] * b[7]);
+	dest[2] = (a[0] * b[2]) + (a[1] * b[5]) + (a[2] * b[8]);
+
+	dest[3] = (a[3] * b[0]) + (a[4] * b[3]) + (a[5] * b[6]);
+	dest[4] = (a[3] * b[1]) + (a[4] * b[4]) + (a[5] * b[7]);
+	dest[5] = (a[3] * b[2]) + (a[4] * b[5]) + (a[5] * b[8]);
+
+	dest[6] = (a[6] * b[0]) + (a[7] * b[3]) + (a[8] * b[6]);
+	dest[7] = (a[6] * b[1]) + (a[7] * b[4]) + (a[8] * b[7]);
+	dest[8] = (a[6] * b[2]) + (a[7] * b[5]) + (a[8] * b[8]);
 }
 
 // See the header file for the function documentation
@@ -65,8 +81,21 @@ void LLVG_MATRIX_IMPL_setRotate(jfloat* matrix, jfloat degrees) {
 
 // See the header file for the function documentation
 void LLVG_MATRIX_IMPL_setConcat(jfloat* dest, jfloat* a, jfloat* b) {
-	LLVG_MATRIX_IMPL_copy(dest, a);
-	LLVG_MATRIX_IMPL_concatenate(dest, b);
+	if(dest == a) {
+		// cppcheck-suppress [misra-c2012-18.8] the size is a define
+		float temp[LLVG_MATRIX_SIZE];
+		LLVG_MATRIX_IMPL_copy(temp, a);
+		LLVG_MATRIX_IMPL_multiply(dest, temp, b);
+	}
+	else if (dest == b) {
+		// cppcheck-suppress [misra-c2012-18.8] the size is a define
+		float temp[LLVG_MATRIX_SIZE];
+		LLVG_MATRIX_IMPL_copy(temp, b);
+		LLVG_MATRIX_IMPL_multiply(dest, a, temp);
+	}
+	else {
+		LLVG_MATRIX_IMPL_multiply(dest, a, b);
+	}
 }
 
 // See the header file for the function documentation
@@ -114,59 +143,51 @@ void LLVG_MATRIX_IMPL_rotate(jfloat* matrix, jfloat angleDegrees) {
 void LLVG_MATRIX_IMPL_concatenate(jfloat* matrix, jfloat* other) {
 	// cppcheck-suppress [misra-c2012-18.8] the size is a define
 	float temp[LLVG_MATRIX_SIZE];
-
-	temp[0] = (matrix[0] * other[0]) + (matrix[1] * other[3]) + (matrix[2] * other[6]);
-	temp[1] = (matrix[0] * other[1]) + (matrix[1] * other[4]) + (matrix[2] * other[7]);
-	temp[2] = (matrix[0] * other[2]) + (matrix[1] * other[5]) + (matrix[2] * other[8]);
-
-	temp[3] = (matrix[3] * other[0]) + (matrix[4] * other[3]) + (matrix[5] * other[6]);
-	temp[4] = (matrix[3] * other[1]) + (matrix[4] * other[4]) + (matrix[5] * other[7]);
-	temp[5] = (matrix[3] * other[2]) + (matrix[4] * other[5]) + (matrix[5] * other[8]);
-
-	temp[6] = (matrix[6] * other[0]) + (matrix[7] * other[3]) + (matrix[8] * other[6]);
-	temp[7] = (matrix[6] * other[1]) + (matrix[7] * other[4]) + (matrix[8] * other[7]);
-	temp[8] = (matrix[6] * other[2]) + (matrix[7] * other[5]) + (matrix[8] * other[8]);
-
-	/* Copy temporary matrix into result. */
-	LLVG_MATRIX_IMPL_copy(matrix, temp);
+	LLVG_MATRIX_IMPL_copy(temp, matrix);
+	LLVG_MATRIX_IMPL_multiply(matrix, temp, other);
 }
 
 // See the header file for the function documentation
 void LLVG_MATRIX_IMPL_postTranslate(jfloat* matrix, jfloat dx, jfloat dy) {
 	// cppcheck-suppress [misra-c2012-18.8] the size is a define
-	float temp[LLVG_MATRIX_SIZE];
-	LLVG_MATRIX_IMPL_setTranslate(temp, dx, dy);
-	LLVG_MATRIX_IMPL_concatenate(temp, matrix);
-	LLVG_MATRIX_IMPL_copy(matrix, temp);
+	float a[LLVG_MATRIX_SIZE];
+	// cppcheck-suppress [misra-c2012-18.8] the size is a define
+	float b[LLVG_MATRIX_SIZE];
+	LLVG_MATRIX_IMPL_setTranslate(a, dx, dy);
+	LLVG_MATRIX_IMPL_copy(b, matrix);
+	LLVG_MATRIX_IMPL_multiply(matrix, a, b);
 }
 
 // See the header file for the function documentation
 void LLVG_MATRIX_IMPL_postScale(jfloat* matrix, jfloat sx, jfloat sy) {
 	// cppcheck-suppress [misra-c2012-18.8] the size is a define
-	float temp[LLVG_MATRIX_SIZE];
-	LLVG_MATRIX_IMPL_identity(temp);
-	LLVG_MATRIX_IMPL_scale(temp, sx, sy);
-	LLVG_MATRIX_IMPL_concatenate(temp, matrix);
-	LLVG_MATRIX_IMPL_copy(matrix, temp);
+	float a[LLVG_MATRIX_SIZE];
+	// cppcheck-suppress [misra-c2012-18.8] the size is a define
+	float b[LLVG_MATRIX_SIZE];
+	LLVG_MATRIX_IMPL_identity(a);
+	LLVG_MATRIX_IMPL_scale(a, sx, sy);
+	LLVG_MATRIX_IMPL_copy(b, matrix);
+	LLVG_MATRIX_IMPL_multiply(matrix, a, b);
 }
 
 // See the header file for the function documentation
 void LLVG_MATRIX_IMPL_postRotate(jfloat* matrix, jfloat degrees) {
 	// cppcheck-suppress [misra-c2012-18.8] the size is a define
-	float temp[LLVG_MATRIX_SIZE];
-	LLVG_MATRIX_IMPL_identity(temp);
-	LLVG_MATRIX_IMPL_rotate(temp, degrees);
-	LLVG_MATRIX_IMPL_concatenate(temp, matrix);
-	LLVG_MATRIX_IMPL_copy(matrix, temp);
+	float a[LLVG_MATRIX_SIZE];
+	// cppcheck-suppress [misra-c2012-18.8] the size is a define
+	float b[LLVG_MATRIX_SIZE];
+	LLVG_MATRIX_IMPL_identity(a);
+	LLVG_MATRIX_IMPL_rotate(a, degrees);
+	LLVG_MATRIX_IMPL_copy(b, matrix);
+	LLVG_MATRIX_IMPL_multiply(matrix, a, b);
 }
 
 // See the header file for the function documentation
 void LLVG_MATRIX_IMPL_postConcat(jfloat* matrix, jfloat* other) {
 	// cppcheck-suppress [misra-c2012-18.8] the size is a define
-	float temp[LLVG_MATRIX_SIZE];
-	LLVG_MATRIX_IMPL_copy(temp, other);
-	LLVG_MATRIX_IMPL_concatenate(temp, matrix);
-	LLVG_MATRIX_IMPL_copy(matrix, temp);
+	float a[LLVG_MATRIX_SIZE];
+	LLVG_MATRIX_IMPL_copy(a, matrix);
+	LLVG_MATRIX_IMPL_multiply(matrix, other, a);
 }
 
 // -----------------------------------------------------------------------------

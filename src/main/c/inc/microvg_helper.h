@@ -10,7 +10,7 @@
 * @brief MicroEJ MicroVG library low level API: helper to implement library natives
 * methods.
 * @author MicroEJ Developer Team
-* @version 2.0.0
+* @version 2.1.0
 */
 
 #if !defined MICROVG_HELPER_H

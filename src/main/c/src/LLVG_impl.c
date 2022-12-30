@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: basic implementation
  * of matrix APIs.
  * @author MicroEJ Developer Team
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 #include <LLVG_impl.h>
@@ -18,6 +18,7 @@
 #include "microvg_configuration.h"
 #include "microvg_helper.h"
 #include "microvg_font_freetype.h"
+#include "microvg_path.h"
 
 // See the header file for the function documentation
 void LLVG_IMPL_initialize(void) {
@@ -28,6 +29,7 @@ void LLVG_IMPL_initialize(void) {
 	(VG_FEATURE_FONT == VG_FEATURE_FONT_FREETYPE_VECTOR || VG_FEATURE_FONT == VG_FEATURE_FONT_FREETYPE_BITMAP)
 
 	MICROVG_FONT_FREETYPE_initialize();
-
 #endif
+
+	MICROVG_PATH_initialize();
 }

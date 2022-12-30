@@ -6,7 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## 2.0.0 - 2022-09-02
+## [2.1.0] - 2022-12-30
+
+### Added
+
+  - Add `LLVG_MATRIX_IMPL_multiply(c,a,b)` (C = AxB): faster than `setConcat` when destination and source target the same matrix.  
+  - Add an entry point to initialize the path engine on startup.
+
+### Changed
+
+  - Prevent a copy in a temp matrix when calling `postXXX` functions. 
+
+### Fixed
+
+  - Fix `A.setConcat(B,A)` 
+
+## [2.0.0] - 2022-09-02
 
 ### Added
 
@@ -22,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Use mej_log.h global log library for console logs.
 
 
-## 1.0.0 - 2022-05-13
+## [1.0.0] - 2022-05-13
 
 ### Added
 

@@ -9,7 +9,7 @@
  * @file
  * @brief FREETYPE helper implementation.
  * @author MicroEJ Developer Team
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 #include "microvg_configuration.h"

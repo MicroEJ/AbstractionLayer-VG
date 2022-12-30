@@ -9,7 +9,7 @@
 * @file
 * @brief MicroEJ MicroVG library low level API: implementation of Path.
 * @author MicroEJ Developer Team
-* @version 2.0.0
+* @version 2.1.0
 */
 
 #if !defined MICROVG_PATH_H
@@ -74,6 +74,13 @@ uint32_t MICROVG_PATH_convert_path_command(jint command);
 // -----------------------------------------------------------------------------
 // Specific path formatting functions [optional]
 // -----------------------------------------------------------------------------
+
+/*
+ * @brief Initializes the path builder.
+ *
+ * The default implementation does nothing.
+ */
+void MICROVG_PATH_initialize(void);
 
 /*
  * @brief Gets the path's array header size.

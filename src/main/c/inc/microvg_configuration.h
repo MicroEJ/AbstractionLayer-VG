@@ -10,7 +10,7 @@
 * @brief MicroEJ MicroVG library low level API: enable some features according to
 * the hardware capacities.
 * @author MicroEJ Developer Team
-* @version 2.0.0
+* @version 2.1.0
 */
 
 #if !defined MICROVG_CONFIGURATION_H

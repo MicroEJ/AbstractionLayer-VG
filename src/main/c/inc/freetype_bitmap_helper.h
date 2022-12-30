@@ -9,7 +9,7 @@
  * @file
  * @brief Freetype bitmap helper implementation header for VectorGraphics Low Level API.
  * @author MicroEJ Developer Team
- * @version 2.0.0
+ * @version 2.1.0
  */
  
 #ifndef FREETYPE_BITMAP_HELPER_H_
