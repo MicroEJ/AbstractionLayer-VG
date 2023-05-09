@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2022 MicroEJ Corp. All rights reserved.
+ * Copyright 2022-2023 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -10,7 +10,7 @@
 * @brief MicroEJ MicroVG library low level API: helper to implement library natives
 * methods.
 * @author MicroEJ Developer Team
-* @version 2.1.0
+* @version 3.0.0
 */
 
 // -----------------------------------------------------------------------------
@@ -39,7 +39,7 @@
 	#error "Undefined MICROVG_CONFIGURATION_VERSION, it must be defined in microvg_configuration.h"
 #endif
 
-#if defined MICROVG_CONFIGURATION_VERSION && MICROVG_CONFIGURATION_VERSION != 1
+#if defined MICROVG_CONFIGURATION_VERSION && MICROVG_CONFIGURATION_VERSION != 2
 	#error "Version of the configuration file microvg_configuration.h is not compatible with this implementation."
 #endif
 

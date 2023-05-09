@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2020-2022 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2023 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -10,7 +10,7 @@
 * @brief MicroEJ MicroVG library low level API: enable some features according to
 * the hardware capacities.
 * @author MicroEJ Developer Team
-* @version 2.1.0
+* @version 3.0.0
 */
 
 #if !defined MICROVG_CONFIGURATION_H
@@ -30,7 +30,7 @@ extern "C" {
  * This value must not be changed by the user of the CCO.
  * This value must be incremented by the implementor of the CCO when a configuration define is added, deleted or modified.
  */
-#define MICROVG_CONFIGURATION_VERSION (1)
+#define MICROVG_CONFIGURATION_VERSION (2)
 
 // -----------------------------------------------------------------------------
 // MicroVG's LinearGradient Options
@@ -180,6 +180,36 @@ extern "C" {
  */
 #ifdef VG_FEATURE_FONT_COMPLEX_LAYOUT
 #define VG_FEATURE_FONT_COMPLEX_LAYOUT_HEAP_SIZE ( 80 * 1024 )
+#endif
+
+/*
+ * @brief Set this define to enable the support of MicroVG BufferedVectorImage.
+ * This feature requires the available number of supported GraphicsContext formats
+ * is higher than 1.
+ *
+ * Comment the define VG_FEATURE_BUFFERED_VECTOR_IMAGE to remove the support of
+ * BufferedVectorImage (even if the available number of supported GraphicsContext
+ * formats is higher than 1).
+ */
+#if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+
+/*
+ * @brief Comment the define VG_FEATURE_BUFFERED_VECTOR_IMAGE to remove the support
+ * of BufferedVectorImage (even if the available number of supported GraphicsContext
+ * formats is higher than 1).
+ */
+#define VG_FEATURE_BUFFERED_VECTOR_IMAGE
+
+/*
+ * @brief The drawing functions to target the BufferedVectorImage have by default the
+ * identifier 1.
+ */
+#ifndef UI_DRAWING_IDENTIFIER_BVI_FORMAT
+#define UI_DRAWING_IDENTIFIER_BVI_FORMAT 1
+#endif
+
+#elif defined(VG_FEATURE_BUFFERED_VECTOR_IMAGE)
+#error "The BufferedVectorImage feature requires the support of several Graphics Context formats".
 #endif
 
 // -----------------------------------------------------------------------------

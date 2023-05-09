@@ -7,7 +7,7 @@ This component contains the Low-Level API (LLAPI) of MicroVG implementation.
 
 1. Add the following line to your `module.ivy`:
 
-    <dependency org="com.microej.clibrary.llimpl" name="microvg" rev="2.1.0"/>
+    <dependency org="com.microej.clibrary.llimpl" name="microvg" rev="3.0.0"/>
     
 2. Rename the file `microvg_configuration.h.tpl` in `microvg_configuration.h`.
 3. Configure the options in `microvg_configuration.h` .

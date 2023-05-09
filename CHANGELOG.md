@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2023-05-09
+
+### Added
+
+  - Add the compatibility with multiple Graphics Context output formats (UI Pack 13.5.0).
+  - Add stub implementations for all MicroVG library algorithms.
+  - Add `LLVG_PAINTER_impl.c` to implement all MicroVG drawings and dispatch them to `vg_drawing.h` (like MicroUI and `LLUI_PAINTER_impl.c` / `ui_drawing.h`).
+  - Add the MicroVG BufferedVectorImage definition (the functions to implement to draw into it).
+
+### Changed
+
+  - Make the CCO compatible with VG pack 1.3.0 and higher.
+  - CCO MicroVG now depends on CCO MicroUI (to manage the support of multiple Graphics Context output formats).
+
+### Fixed
+
+  - Remove an extraneous file.
+  - Fix issue when measuring string width in complex layout mode.
+
+### Removed
+
+  - Remove the useless implementation of `LLVG_PATH_IMPL_mergePaths` (useless since VG Pack 1.2).
+  - Remove partial Freetype implementation that manipulates the font's glyphs as bitmaps (not compatible anymore with VG pack 1.3.0).  
+
+### Migration Guide
+
+  - Follow the migration steps of CCO MicroUI 3.0.0
+  - [VEE Port configuration project] 
+  		- Fetch VG Pack 1.3.0 and CCO MicroVG 3.0.0.
+  		- Delete the content of `dropins/include` folder.
+  - [BSP project] 
+  		- Delete the properties file `cco_microvg.properties`.
+  		- Verify the options in `microvg_configuration.h`. 
+  		- In the C project configuration, include the new C files `LLVG_BVI_stub.c`, `LLVG_PAINTER_impl.c`, `vg_drawing.c` and `vg_drawing_stub.c`.
+  - Build the VEE Port and the BSP.  
 
 ## [2.1.0] - 2022-12-30
 
@@ -46,5 +81,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add UTF16 characters parsing in `LLVG_FONT_IMPL_string_width()`.
  
 ---
-_Copyright 2021-2022 MicroEJ Corp. All rights reserved._  
+_Copyright 2021-2023 MicroEJ Corp. All rights reserved._  
 _Use of this source code is governed by a BSD-style license that can be found with this software._  

@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2020-2022 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2023 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 2.1.0
+ * @version 3.0.0
  */
 
 #include "microvg_configuration.h"
@@ -256,6 +256,7 @@ jfloat LLVG_FONT_IMPL_string_width(jchar* text, jint faceHandle, jfloat size, jf
 
 			int advance_x;
 			int previous_advance_x;
+			int previous_offset_x;
 			int advance_y;
 			int offset_x;
 			int offset_y;
@@ -263,7 +264,7 @@ jfloat LLVG_FONT_IMPL_string_width(jchar* text, jint faceHandle, jfloat size, jf
 			int length = (int)SNI_getArrayLength(text);
 			MICROVG_HELPER_layout_configure(faceHandle, text, length);
 
-			while(0 != MICROVG_HELPER_layout_load_glyph(&glyph_index, &advance_x, &advance_y, &offset_x, &offset_y)) {
+			while(MICROVG_HELPER_layout_load_glyph(&glyph_index, &advance_x, &advance_y, &offset_x, &offset_y)) {
 				// At that point the current glyph has been loaded by Freetype
 				if (0 == previous_glyph_index){
 					// first glyph: remove the first blank line
@@ -278,8 +279,10 @@ jfloat LLVG_FONT_IMPL_string_width(jchar* text, jint faceHandle, jfloat size, jf
 				unscaled_width += advance_x;
 				previous_glyph_index = glyph_index;
 				nb_chars ++;
-				// Last call to MICROVG_HELPER_layout_load_glyph clear advance_x, we need to keep.
+				// Last call to MICROVG_HELPER_layout_load_glyph clear advance_x and offset_x.
+				// We need to keep them for last glyph measurement
 				previous_advance_x = advance_x;
+				previous_offset_x = offset_x;
 			}
 
 			// last glyph: remove the last blank line
@@ -287,6 +290,7 @@ jfloat LLVG_FONT_IMPL_string_width(jchar* text, jint faceHandle, jfloat size, jf
 				unscaled_width -= previous_advance_x;
 				unscaled_width += face->glyph->metrics.horiBearingX; // glyph's left blank line
 				unscaled_width += face->glyph->metrics.width; // glyph's width
+				unscaled_width += previous_offset_x; // glyph's offset_x
 			}
 			else {
 				if(0 != unscaled_width){
@@ -333,7 +337,7 @@ jfloat LLVG_FONT_IMPL_string_height(jchar* text, jint faceHandle, jfloat size) {
 			int length = (int)SNI_getArrayLength(text);
 			MICROVG_HELPER_layout_configure(faceHandle, text, length);
 
-			while(0 != MICROVG_HELPER_layout_load_glyph(&glyph_index, &advance_x, &advance_y, &offset_x, &offset_y)) {
+			while(MICROVG_HELPER_layout_load_glyph(&glyph_index, &advance_x, &advance_y, &offset_x, &offset_y)) {
 				// At that point the current glyph has been loaded by Freetype
 
 				FT_Pos yBottom = face->glyph->metrics.horiBearingY - face->glyph->metrics.height;
