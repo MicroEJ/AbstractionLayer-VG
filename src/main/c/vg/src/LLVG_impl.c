@@ -9,7 +9,7 @@
  * @file
  * @brief Initializes the MicroVG implementation.
  * @author MicroEJ Developer Team
- * @version 3.0.0
+ * @version 3.0.1
  */
 
 // -----------------------------------------------------------------------------
@@ -23,6 +23,7 @@
 #include "microvg_helper.h"
 #include "microvg_font_freetype.h"
 #include "microvg_path.h"
+#include "microvg_trace.h"
 
 // -----------------------------------------------------------------------------
 // Defines
@@ -33,11 +34,23 @@
 #endif
 
 // -----------------------------------------------------------------------------
+// Globals
+// -----------------------------------------------------------------------------
+
+/*
+ * microvg_trace.h logs group identifier
+ */
+int32_t vg_trace_group_id;
+
+// -----------------------------------------------------------------------------
 // LLVG_impl.h functions
 // -----------------------------------------------------------------------------
 
 // See the header file for the function documentation
 void LLVG_IMPL_initialize(void) {
+
+	vg_trace_group_id = LLTRACE_IMPL_declare_event_group("MicroVG", LOG_MICROVG_EVENTS);
+
 	MICROVG_HELPER_initialize();
 
 #if defined VG_FEATURE_FONT && \

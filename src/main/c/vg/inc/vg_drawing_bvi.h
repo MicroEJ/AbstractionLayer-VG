@@ -16,7 +16,7 @@ extern "C" {
  * is the BufferedVectorImage format. When the drawing cannot be performed for any reason,
  * the stub implementation is used insted.
  * @author MicroEJ Developer Team
- * @version 3.0.0
+ * @version 3.0.1
  * @see ui_drawing_bvi.h
  */
 

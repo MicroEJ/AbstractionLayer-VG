@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 3.0.0
+ * @version 3.0.1
  */
 
 #include "microvg_configuration.h"
@@ -36,6 +36,7 @@
 
 #include "microvg_font_freetype.h"
 #include "microvg_helper.h"
+#include "microvg_trace.h"
 #include "mej_math.h"
 
 // -----------------------------------------------------------------------------
@@ -46,6 +47,13 @@
  * @brief Computes the scale to apply to the font.
  */
 #define GET_SCALE(s,f) ((s) / (f)->units_per_EM)
+
+
+/*
+ * @brief Macro to add a FONT event and its type.
+ */
+#define LOG_MICROVG_FONT_START(fn) LOG_MICROVG_START(LOG_MICROVG_FONT_ID, CONCAT_DEFINES(LOG_MICROVG_FONT_, fn))
+#define LOG_MICROVG_FONT_END(fn) LOG_MICROVG_END(LOG_MICROVG_FONT_ID, CONCAT_DEFINES(LOG_MICROVG_FONT_, fn))
 
 // -----------------------------------------------------------------------------
 // Types
@@ -187,6 +195,8 @@ void MICROVG_FONT_FREETYPE_initialize(void) {
 // See the header file for the function documentation
 jint LLVG_FONT_IMPL_load_font(jchar* font_name, jboolean complex_layout) {
 
+	LOG_MICROVG_FONT_START(load);
+
 	FT_Face face = 0;
 	jint ret = LLVG_FONT_UNLOADED;
 
@@ -228,12 +238,15 @@ jint LLVG_FONT_IMPL_load_font(jchar* font_name, jboolean complex_layout) {
 		}
 
 	}
+
+	LOG_MICROVG_FONT_END(load);
 	return ret;
 }
 
 // See the header file for the function documentation
 jfloat LLVG_FONT_IMPL_string_width(jchar* text, jint faceHandle, jfloat size, jfloat letterSpacing) {
 
+	LOG_MICROVG_FONT_START(stringWidth);
 	jfloat ret;
 
 	if (LLVG_FONT_UNLOADED == faceHandle) {
@@ -303,12 +316,14 @@ jfloat LLVG_FONT_IMPL_string_width(jchar* text, jint faceHandle, jfloat size, jf
 		ret = scaled_width;
 	}
 
+	LOG_MICROVG_FONT_END(stringWidth);
 	return ret;
 }
 
 // See the header file for the function documentation
 jfloat LLVG_FONT_IMPL_string_height(jchar* text, jint faceHandle, jfloat size) {
 
+	LOG_MICROVG_FONT_START(stringHeight);
 	jfloat ret;
 
 	if (LLVG_FONT_UNLOADED == faceHandle) {
@@ -353,12 +368,14 @@ jfloat LLVG_FONT_IMPL_string_height(jchar* text, jint faceHandle, jfloat size) {
 		ret = scaled_height;
 	}
 
+	LOG_MICROVG_FONT_END(stringHeight);
 	return ret;
 }
 
 // See the header file for the function documentation
 jfloat LLVG_FONT_IMPL_get_baseline_position(jint faceHandle, jfloat size) {
 
+	LOG_MICROVG_FONT_START(baseline);
 	jfloat ret;
 
 	if (LLVG_FONT_UNLOADED == faceHandle) {
@@ -376,12 +393,14 @@ jfloat LLVG_FONT_IMPL_get_baseline_position(jint faceHandle, jfloat size) {
 		ret = advance_y;
 	}
 
+	LOG_MICROVG_FONT_END(baseline);
 	return ret;
 }
 
 // See the header file for the function documentation
 jfloat LLVG_FONT_IMPL_get_height(jint faceHandle, jfloat size) {
 
+	LOG_MICROVG_FONT_START(height);
 	jfloat ret;
 
 	if (LLVG_FONT_UNLOADED == faceHandle) {
@@ -393,6 +412,7 @@ jfloat LLVG_FONT_IMPL_get_height(jint faceHandle, jfloat size) {
 		ret = face->height * scale;
 	}
 
+	LOG_MICROVG_FONT_END(height);
 	return ret;
 }
 
@@ -416,6 +436,9 @@ bool LLVG_FONT_IMPL_has_complex_layouter(void){
 
 static void _dispose_registered_font(void* faceHandle) {
 	FT_Face face = (FT_Face) faceHandle;
+
+	// unregister the resource since the VEE does not need to call it anymore
+	SNI_unregisterResource((void*)face, (SNI_closeFunction)&_dispose_registered_font);
 
 #if defined (VG_FEATURE_FONT_EXTERNAL)
 	// FT_Done_Face() sets the stream to NULL: have to save it to close the 

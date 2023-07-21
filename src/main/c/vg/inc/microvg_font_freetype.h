@@ -9,7 +9,7 @@
 * @file
 * @brief MicroEJ MicroVG library low level API: implementation over FreeType.
 * @author MicroEJ Developer Team
-* @version 3.0.0
+* @version 3.0.1
 */
 
 #if !defined MICROVG_FONT_FREETYPE_H
