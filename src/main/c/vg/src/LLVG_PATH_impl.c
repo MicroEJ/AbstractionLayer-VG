@@ -15,7 +15,7 @@
  * The encoding can be overridden, see "[optional]: weak functions" in "microvg_path.h"
  *
  * @author MicroEJ Developer Team
- * @version 3.0.1
+ * @version 4.0.0
  */
 
 #include "microvg_configuration.h"
@@ -47,7 +47,7 @@
  * number corresponding to size the buffer must be enlarged for this command.
  */
 static int32_t _extend_path(MICROVG_PATH_HEADER_t* path, jint length, jint cmd, uint32_t nb_fields) {
-	uint32_t index = path->data_offset + path->data_size;
+	uint32_t index = MICROVG_PATH_get_path_header_size() + path->data_size;
 	uint32_t extra_size = MICROVG_PATH_get_path_command_size(cmd, nb_fields);
 	int32_t ret;
 
@@ -170,7 +170,6 @@ jint LLVG_PATH_IMPL_initializePath(jbyte* jpath, jint length) {
 
 	if (length >= header_size) {
 		path->data_size = 0;
-		path->data_offset = header_size;
 		path->format = MICROVG_PATH_get_path_encoder_format();
 	}
 	else {

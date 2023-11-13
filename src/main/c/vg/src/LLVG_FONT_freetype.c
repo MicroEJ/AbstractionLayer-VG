@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 3.0.1
+ * @version 4.0.0
  */
 
 #include "microvg_configuration.h"
@@ -23,7 +23,7 @@
 // -----------------------------------------------------------------------------
 
 #include <math.h>
-
+#include <string.h>
 #include <aftypes.h>
 
 #include <LLVG_impl.h>
@@ -125,8 +125,6 @@ static FT_Error __load_internal_font(FT_Face* face, jchar* font_name);
  */
 static FT_Error __load_external_font(FT_Face* face, jchar* font_name);
 
-
-
 /*
  * @brief Reads a chunk from an external resource.
  *
@@ -149,6 +147,12 @@ static unsigned long __read_external_resource(FT_Stream stream, unsigned long of
  * @param[in] stream: a handle to the target stream.
  */
 static void __close_external_resource(FT_Stream stream);
+
+/*
+ * @brief Gets the description of the given native resource: a vector font.
+ * @see SNI_getDescriptionFunction
+ */
+static void __register_external_font_description(void* resource, char* buffer, uint32_t bufferLength);
 
 #endif // VG_FEATURE_FONT_EXTERNAL
 
@@ -220,7 +224,7 @@ jint LLVG_FONT_IMPL_load_font(jchar* font_name, jboolean complex_layout) {
 			FT_Select_Charmap(face , ft_encoding_unicode);
 			MEJ_LOG_INFO_MICROVG("Freetype font loaded: %s\n", (const char*)font_name);
 
-			SNI_registerResource((void*)face, (SNI_closeFunction)&_dispose_registered_font, JNULL);
+			SNI_registerResource((void*)face, (SNI_closeFunction)&_dispose_registered_font, &__register_external_font_description);
 
 #if defined (VG_FEATURE_FONT_COMPLEX_LAYOUT)
 			if(JTRUE == complex_layout){
@@ -543,6 +547,14 @@ static unsigned long __read_external_resource(FT_Stream stream, unsigned long of
 static void __close_external_resource(FT_Stream stream) {
 	RES_ID resource_id = (RES_ID)(stream->descriptor.value);
 	LLEXT_RES_close(resource_id);
+}
+
+static void __register_external_font_description(void* resource, char* buffer, uint32_t bufferLength) {
+	(void)resource;
+	const char descEF[] = "Vector Font (external resource)";
+	if (bufferLength >= sizeof(descEF)) {
+		memcpy(buffer, descEF, sizeof(descEF));
+	}
 }
 
 #endif // VG_FEATURE_FONT_EXTERNAL

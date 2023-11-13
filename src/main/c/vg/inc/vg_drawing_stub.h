@@ -16,7 +16,7 @@ extern "C" {
  * performed. Useful to stub a drawing on a custom destination (custom GraphicsContext
  * format not supported by the Graphics Engine).
  * @author MicroEJ Developer Team
- * @version 3.0.1
+ * @version 4.0.0
  * @see ui_drawing_stub.h
  */
 

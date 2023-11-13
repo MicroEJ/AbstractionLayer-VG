@@ -9,7 +9,7 @@
  * @file
  * @brief Initializes the MicroVG implementation.
  * @author MicroEJ Developer Team
- * @version 3.0.1
+ * @version 4.0.0
  */
 
 // -----------------------------------------------------------------------------

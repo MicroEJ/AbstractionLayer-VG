@@ -9,7 +9,7 @@
 * @file
 * @brief MicroEJ MicroVG library low level API: implementation of Path.
 * @author MicroEJ Developer Team
-* @version 3.0.1
+* @version 4.0.0
 */
 
 #if !defined MICROVG_PATH_H
@@ -36,10 +36,8 @@ extern "C" {
 /*
  * @brief Map a jbyte array that represents a path
  */
-typedef struct MICROVG_PATH_HEADER
-{
-	uint16_t data_size;  /* data size (without header) */
-	uint16_t data_offset;
+typedef struct MICROVG_PATH_HEADER {
+	uint32_t data_size;  /* data size (without header) */
 	uint8_t format;
 	uint8_t padding1;
 	uint8_t padding2;

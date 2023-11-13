@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation of LinearGradient.
  * @author MicroEJ Developer Team
- * @version 3.0.1
+ * @version 4.0.0
  */
 
 #if !defined MICROVG_GRADIENT_H

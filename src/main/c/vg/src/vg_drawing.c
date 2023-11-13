@@ -15,7 +15,7 @@
  * library.
  *
  * @author MicroEJ Developer Team
- * @version 3.0.1
+ * @version 4.0.0
  * @see ui_drawing.c
  */
 
@@ -34,7 +34,7 @@
 #if !defined(LLUI_GC_SUPPORTED_FORMATS) || (LLUI_GC_SUPPORTED_FORMATS <= 1)
 
 /*
- * The fonction VG_DRAWING_DEFAULT_xxx() are directly called by LLVG_PAINTER_impl.c
+ * The function VG_DRAWING_DEFAULT_xxx() are directly called by LLVG_PAINTER_impl.c
  * Another file can override each weak function independently to use a GPU.
  */
 
@@ -49,7 +49,7 @@
 #else // !defined(LLUI_GC_SUPPORTED_FORMATS) || (LLUI_GC_SUPPORTED_FORMATS <= 1)
 
 /*
- * The fonctions VG_DRAWING_DEFAULT_xxx() are indirectly called through some tables.
+ * The functions VG_DRAWING_DEFAULT_xxx() are indirectly called through some tables.
  * The functions have got the identifier "0" as suffix. Another file can override
  * each weak function independently to use a GPU.
  */
@@ -272,7 +272,7 @@ BSP_DECLARE_WEAK_FCNT inline DRAWING_Status VG_DRAWING_drawImage(MICROUI_Graphic
 }
 
 /*
- * The next functions are used as elements "1" of the tables. They call STUB fonctions and should be
+ * The next functions are used as elements "1" of the tables. They call STUB functions and should be
  * overridden by the drawer that manages the format "1".
  */
 
@@ -311,7 +311,7 @@ BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawImage_1(MICROUI_GraphicsCont
 #if (LLUI_GC_SUPPORTED_FORMATS > 2)
 
 /*
- * The next functions are used as elements "2" of the tables. They call STUB fonctions and should be
+ * The next functions are used as elements "2" of the tables. They call STUB functions and should be
  * overridden by the drawer that manages the format "2".
  */
 
