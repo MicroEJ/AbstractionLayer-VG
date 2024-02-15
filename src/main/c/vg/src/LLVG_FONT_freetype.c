@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2020-2023 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2024 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 4.0.0
+ * @version 5.0.0
  */
 
 #include "microvg_configuration.h"
@@ -111,8 +111,14 @@ static FT_Error __load_memory_font(FT_Face* face, void* data, int length);
  */
 static FT_Error __load_internal_font(FT_Face* face, jchar* font_name);
 
+/*
+ * @brief Gets the description of the given native resource: a vector font.
+ * @see SNI_getDescriptionFunction
+ */
+static void __register_font_description(void* resource, char* buffer, uint32_t bufferLength);
 
 #if defined (VG_FEATURE_FONT_EXTERNAL)
+
 /*
  * @brief Opens a font that has not been compiled with the application.
  *
@@ -147,12 +153,6 @@ static unsigned long __read_external_resource(FT_Stream stream, unsigned long of
  * @param[in] stream: a handle to the target stream.
  */
 static void __close_external_resource(FT_Stream stream);
-
-/*
- * @brief Gets the description of the given native resource: a vector font.
- * @see SNI_getDescriptionFunction
- */
-static void __register_external_font_description(void* resource, char* buffer, uint32_t bufferLength);
 
 #endif // VG_FEATURE_FONT_EXTERNAL
 
@@ -224,7 +224,7 @@ jint LLVG_FONT_IMPL_load_font(jchar* font_name, jboolean complex_layout) {
 			FT_Select_Charmap(face , ft_encoding_unicode);
 			MEJ_LOG_INFO_MICROVG("Freetype font loaded: %s\n", (const char*)font_name);
 
-			SNI_registerResource((void*)face, (SNI_closeFunction)&_dispose_registered_font, &__register_external_font_description);
+			SNI_registerResource((void*)face, (SNI_closeFunction)&_dispose_registered_font, &__register_font_description);
 
 #if defined (VG_FEATURE_FONT_COMPLEX_LAYOUT)
 			if(JTRUE == complex_layout){
@@ -549,15 +549,16 @@ static void __close_external_resource(FT_Stream stream) {
 	LLEXT_RES_close(resource_id);
 }
 
-static void __register_external_font_description(void* resource, char* buffer, uint32_t bufferLength) {
+#endif // VG_FEATURE_FONT_EXTERNAL
+
+static void __register_font_description(void* resource, char* buffer, uint32_t bufferLength) {
 	(void)resource;
-	const char descEF[] = "Vector Font (external resource)";
+	const char descEF[] = "Vector Font";
 	if (bufferLength >= sizeof(descEF)) {
 		memcpy(buffer, descEF, sizeof(descEF));
 	}
 }
 
-#endif // VG_FEATURE_FONT_EXTERNAL
 // cppcheck-suppress [misra-c2012-3.2]
 #endif // defined VG_FEATURE_FONT && \
 	   // (defined VG_FEATURE_FONT_FREETYPE_VECTOR || defined VG_FEATURE_FONT_FREETYPE_BITMAP) && \

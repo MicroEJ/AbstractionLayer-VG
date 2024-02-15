@@ -9,7 +9,7 @@
  * @file
  * @brief Initializes the MicroVG implementation.
  * @author MicroEJ Developer Team
- * @version 4.0.0
+ * @version 5.0.0
  */
 
 // -----------------------------------------------------------------------------
@@ -60,6 +60,8 @@ void LLVG_IMPL_initialize(void) {
 	MICROVG_FONT_FREETYPE_initialize();
 #endif
 
+#ifdef VG_FEATURE_PATH
 	MICROVG_PATH_initialize();
+#endif
 }
 

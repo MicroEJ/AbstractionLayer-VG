@@ -10,7 +10,7 @@
  * @brief MicroVG library low level API: stubbed implementation of LLVG_BVI_impl.h.
  *
  * @author MicroEJ Developer Team
- * @version 4.0.0
+ * @version 5.0.0
  */
 
 #include "microvg_configuration.h"

@@ -9,7 +9,7 @@
 * @file
 * @brief MicroEJ MicroVG library low level API: implementation of Path.
 * @author MicroEJ Developer Team
-* @version 4.0.0
+* @version 5.0.0
 */
 
 #if !defined MICROVG_PATH_H

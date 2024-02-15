@@ -10,7 +10,7 @@
  * @brief
  * @brief Implementation of all drawing functions of vg_drawing_stub.h.
  * @author MicroEJ Developer Team
- * @version 4.0.0
+ * @version 5.0.0
  * @see vg_drawing_stub.h
  */
 

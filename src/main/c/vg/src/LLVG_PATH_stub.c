@@ -11,7 +11,7 @@
  * and LLVG_PATH_PAINTER_impl.h.
  *
  * @author MicroEJ Developer Team
- * @version 4.0.0
+ * @version 5.0.0
  */
 
 #include "microvg_configuration.h"
@@ -23,7 +23,6 @@
 // -----------------------------------------------------------------------------
 
 #include <LLVG_PATH_impl.h>
-#include <LLVG_PATH_PAINTER_impl.h>
 
 // -----------------------------------------------------------------------------
 // LLVG_PATH_impl.h functions

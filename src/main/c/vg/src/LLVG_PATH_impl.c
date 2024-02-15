@@ -15,7 +15,7 @@
  * The encoding can be overridden, see "[optional]: weak functions" in "microvg_path.h"
  *
  * @author MicroEJ Developer Team
- * @version 4.0.0
+ * @version 5.0.0
  */
 
 #include "microvg_configuration.h"

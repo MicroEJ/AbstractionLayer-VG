@@ -10,7 +10,7 @@
 * @brief MicroEJ MicroVG library low level API: helper to implement library natives
 * methods.
 * @author MicroEJ Developer Team
-* @version 4.0.0
+* @version 5.0.0
 */
 
 // -----------------------------------------------------------------------------
@@ -18,10 +18,13 @@
 // -----------------------------------------------------------------------------
 
 #include <LLVG_MATRIX_impl.h>
-#include <freetype/internal/ftobjs.h>
 
 #include "microvg_helper.h"
 #include "microvg_configuration.h"
+
+#if defined VG_FEATURE_FONT
+#include <freetype/internal/ftobjs.h>
+#endif
 
 // -----------------------------------------------------------------------------
 // Configuration Sanity Check
@@ -72,6 +75,7 @@
 
 static jfloat g_identity_matrix[LLVG_MATRIX_SIZE];
 
+#if defined VG_FEATURE_FONT
 static FT_Face face;
 
 // Freetype layout variables
@@ -79,6 +83,7 @@ static unsigned short *current_text;
 static unsigned int current_length;
 static int current_offset;
 static FT_UInt previous_glyph_index; // previous glyph index for kerning
+#endif
 
 #if defined VG_FEATURE_FONT_COMPLEX_LAYOUT
 // Harfbuzz layout variables
@@ -87,7 +92,7 @@ static hb_glyph_position_t  *glyph_pos;
 static unsigned int glyph_count;
 static int current_glyph;
 static hb_buffer_t *buf;
-#endif 
+#endif
 // -----------------------------------------------------------------------------
 // Public functions
 // -----------------------------------------------------------------------------
@@ -132,6 +137,7 @@ int MICROVG_HELPER_get_utf(unsigned short *textCharRam, int length, int *offset)
 	return ret;
 }
 
+#if defined VG_FEATURE_FONT
 // See the header file for the function documentation
 void MICROVG_HELPER_layout_configure(int faceHandle, unsigned short *text, int length){
 	face = (FT_Face) faceHandle;
@@ -175,7 +181,9 @@ void MICROVG_HELPER_layout_configure(int faceHandle, unsigned short *text, int l
 #endif // VG_FEATURE_FONT_COMPLEX_LAYOUT
 	}
 }
+#endif
 
+#if defined VG_FEATURE_FONT
 // See the header file for the function documentation
 bool MICROVG_HELPER_layout_load_glyph(int *glyph_idx, int *x_advance, int *y_advance, int *x_offset, int *y_offset){
 	// Initiate return value with default values
@@ -247,6 +255,7 @@ bool MICROVG_HELPER_layout_load_glyph(int *glyph_idx, int *x_advance, int *y_adv
 
 	return ret;
 }
+#endif
 
 // See the header file for the function documentation
 jfloat* MICROVG_HELPER_check_matrix(jfloat* matrix) {

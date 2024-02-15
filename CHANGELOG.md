@@ -5,11 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2024-02-15
+
+- Compatible with MicroEJ VG Pack 1.5.x.
+
+### Added
+
+  - Add the API that allows to fix the release of the BVI resources.
+
+### Changed
+
+  - Make the CCO compatible with VG pack 1.5.0 and higher.
+  - Make the CCO compatible with the UI Pack 14.0.0 (CCO MicroUI 4.0.0).
+
+### Fixed
+
+  - Fix traces when debugging the SNI resources with external resource support.
+  - Remove an unused include.
+  - Do not define Freetype variables if `VG_FEATURE_FONT` is not defined.
+  - Do not call `MICROVG_PATH_initialize` if `VG_FEATURE_PATH` is not defined.
+
 ## [4.0.0] - 2023-11-13
+
+- Compatible with MicroEJ VG Pack 1.4.2.
 
 ### Added
 
   - Add some traces when debugging the SNI resources (external VectorFont).
+
+### Changed
+
+  - Make the CCO compatible with VG pack 1.4.2 and higher.
 
 ### Fixed
 
@@ -18,6 +44,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.1] - 2023-07-21
 
+- Compatible with MicroEJ VG Pack 1.4.x.
+
+### Changed
+
+  - Make the CCO compatible with VG pack 1.4.0 and higher.
+
 ### Fixed
 
   - Fix the SystemView log identifiers.
@@ -25,6 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fix FreeType fonts closing twice.
 
 ## [3.0.0] - 2023-05-09
+
+- Compatible with MicroEJ VG Pack 1.3.x.
 
 ### Added
 
@@ -48,19 +82,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Remove the useless implementation of `LLVG_PATH_IMPL_mergePaths` (useless since VG Pack 1.2).
   - Remove partial Freetype implementation that manipulates the font's glyphs as bitmaps (not compatible anymore with VG pack 1.3.0).  
 
-### Migration Guide
-
-  - Follow the migration steps of CCO MicroUI 3.0.0
-  - [VEE Port configuration project] 
-  		- Fetch VG Pack 1.3.0 and CCO MicroVG 3.0.0.
-  		- Delete the content of `dropins/include` folder.
-  - [BSP project] 
-  		- Delete the properties file `cco_microvg.properties`.
-  		- Verify the options in `microvg_configuration.h`. 
-  		- In the C project configuration, include the new C files `LLVG_BVI_stub.c`, `LLVG_PAINTER_impl.c`, `vg_drawing.c` and `vg_drawing_stub.c`.
-  - Build the VEE Port and the BSP.  
-
 ## [2.1.0] - 2022-12-30
+
+- Compatible with MicroEJ VG Pack 1.2.x.
 
 ### Added
 
@@ -69,6 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+  - Make the CCO compatible with VG pack 1.2.0 and higher.
   - Prevent a copy in a temp matrix when calling `postXXX` functions. 
 
 ### Fixed
@@ -76,6 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fix `A.setConcat(B,A)` 
 
 ## [2.0.0] - 2022-09-02
+
+- Compatible with MicroEJ VG Pack 1.1.x.
 
 ### Added
 
@@ -87,6 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+  - Make the CCO compatible with VG pack 1.1.0 and higher.
   - Manage the closed fonts.
   - Use mej_log.h global log library for console logs.
 
@@ -100,5 +128,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add UTF16 characters parsing in `LLVG_FONT_IMPL_string_width()`.
  
 ---
-_Copyright 2021-2023 MicroEJ Corp. All rights reserved._  
+_Copyright 2021-2024 MicroEJ Corp. All rights reserved._  
 _Use of this source code is governed by a BSD-style license that can be found with this software._  

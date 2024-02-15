@@ -1,5 +1,5 @@
 /* 
- * Copyright 2023 MicroEJ Corp. All rights reserved.
+ * Copyright 2023-2024 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -16,7 +16,7 @@ extern "C" {
  * the destination buffer format is the BufferedVectorImage format. When the drawing
  * cannot be performed for any reason, the stub implementation is used instead.
  * @author MicroEJ Developer Team
- * @version 4.0.0
+ * @version 5.0.0
  */
 
 #include "microvg_configuration.h"
@@ -41,6 +41,7 @@ extern "C" {
 #define UI_DRAWING_BVI_is_drawer CONCAT(UI_DRAWING_is_drawer_, UI_DRAWING_IDENTIFIER_BVI_FORMAT)
 #define UI_DRAWING_BVI_adjustNewImageCharacteristics CONCAT(UI_DRAWING_adjustNewImageCharacteristics_, UI_DRAWING_IDENTIFIER_BVI_FORMAT)
 #define UI_DRAWING_BVI_initializeNewImage CONCAT(UI_DRAWING_initializeNewImage_, UI_DRAWING_IDENTIFIER_BVI_FORMAT)
+#define UI_DRAWING_BVI_freeImageResources CONCAT(UI_DRAWING_freeImageResources_, UI_DRAWING_IDENTIFIER_BVI_FORMAT)
 
 #define UI_DRAWING_BVI_drawLine CONCAT(UI_DRAWING_drawLine_, UI_DRAWING_IDENTIFIER_BVI_FORMAT)
 #define UI_DRAWING_BVI_drawHorizontalLine CONCAT(UI_DRAWING_drawHorizontalLine_, UI_DRAWING_IDENTIFIER_BVI_FORMAT)
@@ -80,6 +81,11 @@ void UI_DRAWING_BVI_adjustNewImageCharacteristics(jbyte image_format, uint32_t w
  * @brief Implementation of initializeNewImage for a BufferedVectorImage. See ui_drawing.h
  */
 void UI_DRAWING_BVI_initializeNewImage(MICROUI_Image* image);
+
+/*
+ * @brief Implementation of freeImageResources for a BufferedVectorImage. See ui_drawing.h
+ */
+void UI_DRAWING_BVI_freeImageResources(MICROUI_Image* image) ;
   
 /*
  * @brief Implementation of drawLine over a BufferedVectorImage. See ui_drawing.h

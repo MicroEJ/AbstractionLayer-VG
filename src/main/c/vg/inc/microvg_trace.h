@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2023 MicroEJ Corp. All rights reserved.
+ * Copyright 2023-2024 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -12,6 +12,13 @@
 #if defined __cplusplus
 extern "C" {
 #endif
+
+/*
+ * @file
+ * @brief Provides the logs of the CCO MicroVG.
+ * @author MicroEJ Developer Team
+ * @version 5.0.0
+ */
 
 // -----------------------------------------------------------------------------
 // Includes
@@ -71,18 +78,12 @@ extern "C" {
 /*
  * @brief Macro to add an event and its type.
  */
-#define LOG_MICROVG_START(event, type) \
-		if((int32_t)(&LOG_DRAWING_OPERATION) != -1) { \
-			LLTRACE_IMPL_record_event_u32(vg_trace_group_id, event, type); \
-		}
+#define LOG_MICROVG_START(event, type) LLTRACE_IMPL_record_event_u32(vg_trace_group_id, event, type); 
 
 /*
  * @brief Macro to notify the end of an event and its type.
  */
-#define LOG_MICROVG_END(event, type) \
-		if((int32_t)(&LOG_DRAWING_OPERATION) != -1) { \
-			LLTRACE_IMPL_record_event_end_u32(vg_trace_group_id, event, type); \
-		}
+#define LOG_MICROVG_END(event, type) LLTRACE_IMPL_record_event_end_u32(vg_trace_group_id, event, type); 
 
 /* The following lines must be added to a SYSVIEW_MicroVG.txt file
    in the <SYSTEMVIEW instalation dir>/Description folder
@@ -119,12 +120,6 @@ NamedType VGDraw 6=DRAW_IMAGE
  * @brief External variable that contains the id for each trace group.
  */
 extern int32_t vg_trace_group_id;
-
-/*
- * @brief External variable which is set when the execution trace is enabled
- * in the application launcher.
- */
-extern void LOG_DRAWING_OPERATION(void);
 
 // -----------------------------------------------------------------------------
 // EOF
