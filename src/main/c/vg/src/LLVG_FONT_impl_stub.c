@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2020-2023 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2024 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -9,10 +9,10 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 5.0.0
+ * @version 6.0.1
  */
 
-#include "microvg_configuration.h"
+#include "vg_configuration.h"
 
 #ifndef VG_FEATURE_FONT
 
@@ -28,14 +28,14 @@
 // -----------------------------------------------------------------------------
 
 // See the header file for the function documentation
-jint LLVG_FONT_IMPL_load_font(jchar* font_name, jboolean complex_layout) {
+jint LLVG_FONT_IMPL_load_font(jchar *font_name, jboolean complex_layout) {
 	(void)font_name;
 	(void)complex_layout;
 	return 0;
 }
 
 // See the header file for the function documentation
-jfloat LLVG_FONT_IMPL_string_width(jchar* text, jint faceHandle, jfloat size, jfloat letterSpacing) {
+jfloat LLVG_FONT_IMPL_string_width(jchar *text, jint faceHandle, jfloat size, jfloat letterSpacing) {
 	(void)text;
 	(void)faceHandle;
 	(void)size;
@@ -44,7 +44,7 @@ jfloat LLVG_FONT_IMPL_string_width(jchar* text, jint faceHandle, jfloat size, jf
 }
 
 // See the header file for the function documentation
-jfloat LLVG_FONT_IMPL_string_height(jchar* text, jint faceHandle, jfloat size) {
+jfloat LLVG_FONT_IMPL_string_height(jchar *text, jint faceHandle, jfloat size) {
 	(void)text;
 	(void)faceHandle;
 	(void)size;
@@ -71,7 +71,7 @@ void LLVG_FONT_IMPL_dispose(jint faceHandle) {
 }
 
 // See the header file for the function documentation
-bool LLVG_FONT_IMPL_has_complex_layouter(void){
+bool LLVG_FONT_IMPL_has_complex_layouter(void) {
 	return false;
 }
 

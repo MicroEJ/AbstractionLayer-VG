@@ -5,9 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
-
-#if !defined MICROVG_TRACE_H
-#define MICROVG_TRACE_H
+#if !defined VG_TRACE_H
+#define VG_TRACE_H
 
 #if defined __cplusplus
 extern "C" {
@@ -17,7 +16,7 @@ extern "C" {
  * @file
  * @brief Provides the logs of the CCO MicroVG.
  * @author MicroEJ Developer Team
- * @version 5.0.0
+ * @version 6.0.1
  */
 
 // -----------------------------------------------------------------------------
@@ -73,43 +72,43 @@ extern "C" {
  * @brief Useful macros to concatenate easily some strings and defines.
  */
 #define CONCAT_STRINGS(p, s) p ## s
-#define CONCAT_DEFINES(p, s) CONCAT_STRINGS(p,s)
+#define CONCAT_DEFINES(p, s) CONCAT_STRINGS(p, s)
 
 /*
  * @brief Macro to add an event and its type.
  */
-#define LOG_MICROVG_START(event, type) LLTRACE_IMPL_record_event_u32(vg_trace_group_id, event, type); 
+#define LOG_MICROVG_START(event, type) LLTRACE_IMPL_record_event_u32(VG_TRACE_group_id, event, type);
 
 /*
  * @brief Macro to notify the end of an event and its type.
  */
-#define LOG_MICROVG_END(event, type) LLTRACE_IMPL_record_event_end_u32(vg_trace_group_id, event, type); 
+#define LOG_MICROVG_END(event, type) LLTRACE_IMPL_record_event_end_u32(VG_TRACE_group_id, event, type);
 
 /* The following lines must be added to a SYSVIEW_MicroVG.txt file
-   in the <SYSTEMVIEW instalation dir>/Description folder
-
-NamedType VGImage 0=LOAD_IMAGE
-NamedType VGImage 1=CREATE_IMAGE
-NamedType VGImage 2=CLOSE_IMAGE
-
-NamedType VGFont 0=LOAD_FONT
-NamedType VGFont 1=FONT_BASELINE
-NamedType VGFont 2=FONT_HEIGHT
-NamedType VGFont 3=STRING_WIDTH
-NamedType VGFont 4=STRING_HEIGHT
-
-NamedType VGDraw 0=DRAW_PATH
-NamedType VGDraw 1=DRAW_PATH_GRADIENT
-NamedType VGDraw 2=DRAW_STRING
-NamedType VGDraw 3=DRAW_STRING_GRADIENT
-NamedType VGDraw 4=DRAW_STRING_ON_CIRCLE
-NamedType VGDraw 5=DRAW_STRING_ON_CIRCLE_GRADIENT
-NamedType VGDraw 6=DRAW_IMAGE
-
-0        VG_ImageEvent      (MicroVG) Execute image event %VGImage  | (MicroVG) Image event %VGImage done
-1        VG_FontEvent       (MicroVG) Execute font event %VGFont  | (MicroVG) Font event %VGFont done
-2        VG_DrawingEvent    (MicroVG) Execute drawing event %VGDraw  | (MicroVG) Drawing event %VGDraw done
-
+ * in the <SYSTEMVIEW instalation dir>/Description folder
+ *
+ * NamedType VGImage 0=LOAD_IMAGE
+ * NamedType VGImage 1=CREATE_IMAGE
+ * NamedType VGImage 2=CLOSE_IMAGE
+ *
+ * NamedType VGFont 0=LOAD_FONT
+ * NamedType VGFont 1=FONT_BASELINE
+ * NamedType VGFont 2=FONT_HEIGHT
+ * NamedType VGFont 3=STRING_WIDTH
+ * NamedType VGFont 4=STRING_HEIGHT
+ *
+ * NamedType VGDraw 0=DRAW_PATH
+ * NamedType VGDraw 1=DRAW_PATH_GRADIENT
+ * NamedType VGDraw 2=DRAW_STRING
+ * NamedType VGDraw 3=DRAW_STRING_GRADIENT
+ * NamedType VGDraw 4=DRAW_STRING_ON_CIRCLE
+ * NamedType VGDraw 5=DRAW_STRING_ON_CIRCLE_GRADIENT
+ * NamedType VGDraw 6=DRAW_IMAGE
+ *
+ * 0        VG_ImageEvent      (MicroVG) Execute image event %VGImage  | (MicroVG) Image event %VGImage done
+ * 1        VG_FontEvent       (MicroVG) Execute font event %VGFont  | (MicroVG) Font event %VGFont done
+ * 2        VG_DrawingEvent    (MicroVG) Execute drawing event %VGDraw  | (MicroVG) Drawing event %VGDraw done
+ *
  */
 
 // -----------------------------------------------------------------------------
@@ -119,7 +118,7 @@ NamedType VGDraw 6=DRAW_IMAGE
 /*
  * @brief External variable that contains the id for each trace group.
  */
-extern int32_t vg_trace_group_id;
+extern int32_t VG_TRACE_group_id;
 
 // -----------------------------------------------------------------------------
 // EOF
@@ -129,4 +128,4 @@ extern int32_t vg_trace_group_id;
 }
 #endif
 
-#endif // !defined MICROVG_TRACE_H
+#endif // !defined VG_TRACE_H

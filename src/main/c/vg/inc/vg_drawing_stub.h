@@ -1,5 +1,5 @@
-/* 
- * Copyright 2023 MicroEJ Corp. All rights reserved.
+/*
+ * Copyright 2023-2024 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -16,7 +16,7 @@ extern "C" {
  * performed. Useful to stub a drawing on a custom destination (custom GraphicsContext
  * format not supported by the Graphics Engine).
  * @author MicroEJ Developer Team
- * @version 5.0.0
+ * @version 6.0.1
  * @see ui_drawing_stub.h
  */
 
@@ -33,37 +33,48 @@ extern "C" {
 /*
  * @brief Stubbed implementation of drawPath. See vg_drawing.h
  */
-DRAWING_Status VG_DRAWING_STUB_drawPath(MICROUI_GraphicsContext* gc, jbyte* path, jint x, jint y, jfloat* matrix, jint fillRule, jint blend, jint color);
+DRAWING_Status VG_DRAWING_STUB_drawPath(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule,
+                                        jint blend, jint color);
 
 /*
  * @brief Stubbed implementation of drawGradient. See vg_drawing.h
  */
-DRAWING_Status VG_DRAWING_STUB_drawGradient(MICROUI_GraphicsContext* gc, jbyte* path, jint x, jint y, jfloat* matrix, jint fillRule, jint alpha, jint blend, jint* gradient, jfloat* gradientMatrix);
+DRAWING_Status VG_DRAWING_STUB_drawGradient(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule,
+                                            jint alpha, jint blend, jint *gradient, jfloat *gradientMatrix);
 
 /*
  * @brief Stubbed implementation of drawString. See vg_drawing.h
  */
-DRAWING_Status VG_DRAWING_STUB_drawString(MICROUI_GraphicsContext* gc, jchar* text, jint faceHandle, jfloat size,  jfloat x, jfloat y,  jfloat* matrix, jint alpha, jint blend, jfloat letterSpacing);
+DRAWING_Status VG_DRAWING_STUB_drawString(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle, jfloat size,
+                                          jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing);
 
 /*
  * @brief Stubbed implementation of drawStringGradient. See vg_drawing.h
  */
-DRAWING_Status VG_DRAWING_STUB_drawStringGradient(MICROUI_GraphicsContext* gc, jchar* text, jint faceHandle, jfloat size,  jfloat x, jfloat y,  jfloat* matrix, jint alpha, jint blend, jfloat letterSpacing, jint *gradientData, jfloat *gradientMatrix);
+DRAWING_Status VG_DRAWING_STUB_drawStringGradient(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
+                                                  jfloat size, jfloat *matrix, jint alpha, jint blend,
+                                                  jfloat letterSpacing, jint *gradientData, jfloat *gradientMatrix);
 
 /*
  * @brief Stubbed implementation of drawStringOnCircle. See vg_drawing.h
  */
-DRAWING_Status VG_DRAWING_STUB_drawStringOnCircle(MICROUI_GraphicsContext* gc, jchar* text, jint faceHandle, jfloat size,  jint x, jint y, jfloat* matrix, jint alpha, jint blend, jfloat letterSpacing, jfloat radius, jint direction);
+DRAWING_Status VG_DRAWING_STUB_drawStringOnCircle(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
+                                                  jfloat size, jfloat *matrix, jint alpha, jint blend,
+                                                  jfloat letterSpacing, jfloat radius, jint direction);
 
 /*
  * @brief Stubbed implementation of drawStringOnCircleGradient. See vg_drawing.h
  */
-DRAWING_Status VG_DRAWING_STUB_drawStringOnCircleGradient(MICROUI_GraphicsContext* gc, jchar* text, jint faceHandle, jfloat size,  jint x, jint y, jfloat* matrix, jint alpha, jint blend, jfloat letterSpacing, jfloat radius, jint direction, jint *gradientData, jfloat *gradientMatrix);
+DRAWING_Status VG_DRAWING_STUB_drawStringOnCircleGradient(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
+                                                          jfloat size, jfloat *matrix, jint alpha, jint blend,
+                                                          jfloat letterSpacing, jfloat radius, jint direction,
+                                                          jint *gradientData, jfloat *gradientMatrix);
 
 /*
  * @brief Stubbed implementation of drawImage. See vg_drawing.h
  */
-DRAWING_Status VG_DRAWING_STUB_drawImage(MICROUI_GraphicsContext* gc, void* image, jfloat *matrix, jint alpha, jlong elapsed, const float color_matrix[], jint* errno);
+DRAWING_Status VG_DRAWING_STUB_drawImage(MICROUI_GraphicsContext *gc, void *image, jfloat *matrix, jint alpha,
+                                         jlong elapsed, const float color_matrix[], jint *errno);
 
 // --------------------------------------------------------------------------------
 // EOF

@@ -1,25 +1,26 @@
 /*
  * C
  *
- * Copyright 2020-2023 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2024 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
 /**
-* @file
-* @brief MicroEJ MicroVG library low level API: enable some features according to
-* the hardware capacities.
-* @author MicroEJ Developer Team
-*/
+ * @file
+ * @brief MicroEJ MicroVG library low level API: enable some features according to
+ * the hardware capacities.
+ * @author MicroEJ Developer Team
+ */
 
-#if !defined MICROVG_CONFIGURATION_H
-#define MICROVG_CONFIGURATION_H
+#if !defined VG_CONFIGURATION_H
+#define VG_CONFIGURATION_H
 
 #if defined __cplusplus
 extern "C" {
 #endif
 
-#error "This header must be customized with platform specific configuration. Remove this #error when done. This file is not modified when a new version of the CCO is installed."
+#error \
+	"This header must be customized with platform specific configuration. Remove this #error when done. This file is not modified when a new version of the CCO is installed."
 
 /**
  * @brief Compatibility sanity check value.
@@ -27,9 +28,26 @@ extern "C" {
  * is compatible with the implementation.
  *
  * This value must not be changed by the user of the CCO.
- * This value must be incremented by the implementor of the CCO when a configuration define is added, deleted or modified.
+ * This value must be incremented by the implementor of the CCO when a configuration define is added, deleted or
+ * modified.
  */
-#define MICROVG_CONFIGURATION_VERSION (2)
+#define MICROVG_CONFIGURATION_VERSION (3)
+
+// -----------------------------------------------------------------------------
+// MicroVG's Path Options
+// -----------------------------------------------------------------------------
+
+/*
+ * @brief Value of "VG_FEATURE_PATH" to use only one array to store the path's
+ * commands and the commands' parameters.
+ */
+#define VG_FEATURE_PATH_SINGLE_ARRAY (1)
+
+/*
+ * @brief Value of "VG_FEATURE_PATH" to use two arrays to store the path's data:
+ * one for the commands and one for the commands' parameters.
+ */
+#define VG_FEATURE_PATH_DUAL_ARRAY (2)
 
 // -----------------------------------------------------------------------------
 // MicroVG's LinearGradient Options
@@ -75,22 +93,22 @@ extern "C" {
  */
 #define VG_FEATURE_FONT_FREETYPE_BITMAP (2)
 
-
 // -----------------------------------------------------------------------------
 // MicroVG's Features Implementation
 // -----------------------------------------------------------------------------
 
 /*
- * @brief Uncomment this define to embed the implementation of the MicroVG's
+ * @brief Set this define to embed the implementation of the MicroVG's
  * Path (dynamic path creation and path rendering).
  *
- * This implementation holds an array of path's commands defined by the application.
+ * This implementation holds the path's commands and paramters defined by the
+ * application. The define value specifies how this data is stored (one or two arrays).
  *
  * When not set, a stub implementation is used. No error is thrown at runtime when
  * the application uses a path: the dynamic path are not created and the path
  * rendering is not performed.
  */
-#define VG_FEATURE_PATH
+#define VG_FEATURE_PATH VG_FEATURE_PATH_SINGLE_ARRAY
 
 /*
  * @brief Set this define to specify the implementation of the MicroVG's
@@ -136,17 +154,17 @@ extern "C" {
 #define VG_FEATURE_FREETYPE_COLORED_EMOJI
 
 /*
-* @brief Uncomment this define to enable the support of complex layout.
-*
-* When set, the complex layout feature is disabled by default (the Freetype layout
-* manager is used). See functions MICROVG_HELPER_set_complex_layout() and
-* MICROVG_HELPER_has_complex_layouter().
-*
-* Note: the complex layout feature is managed by the Harfbuzz engine.
-*       Harfbuzz is used beside Freetype, thus the FT_CONFIG_OPTION_USE_HARFBUZZ define
-*       is not needed. This implementation has been chosen to ease the replacement of
-*       harfbuzz by an other complex layouter.
-*/
+ * @brief Uncomment this define to enable the support of complex layout.
+ *
+ * When set, the complex layout feature is disabled by default (the Freetype layout
+ * manager is used). See functions MICROVG_HELPER_set_complex_layout() and
+ * MICROVG_HELPER_has_complex_layouter().
+ *
+ * Note: the complex layout feature is managed by the Harfbuzz engine.
+ *       Harfbuzz is used beside Freetype, thus the FT_CONFIG_OPTION_USE_HARFBUZZ define
+ *       is not needed. This implementation has been chosen to ease the replacement of
+ *       harfbuzz by an other complex layouter.
+ */
 #define VG_FEATURE_FONT_COMPLEX_LAYOUT
 
 /*
@@ -165,9 +183,9 @@ extern "C" {
  * @brief Configure this define to set the freetype heap size
  *
  * The freetype heap size depends on the font used by the application
- * @see MICROVG_MONITOR_HEAP in microvg_helper.h to monitor the heap usage evolution.
+ * @see MICROVG_MONITOR_HEAP in vg_helper.h to monitor the heap usage evolution.
  */
-#define VG_FEATURE_FREETYPE_HEAP_SIZE ( 160 * 1024 )
+#define VG_FEATURE_FREETYPE_HEAP_SIZE (80 * 1024)
 
 /*
  * @brief Configure this define to set the complex layouter heap size
@@ -175,10 +193,10 @@ extern "C" {
  *@see VG_FEATURE_FONT_COMPLEX_LAYOUT
  *
  * The complex layouter heap size depends on the font used by the application
- * @see MICROVG_MONITOR_HEAP in microvg_helper.h to monitor the heap usage evolution.
+ * @see MICROVG_MONITOR_HEAP in vg_helper.h to monitor the heap usage evolution.
  */
 #ifdef VG_FEATURE_FONT_COMPLEX_LAYOUT
-#define VG_FEATURE_FONT_COMPLEX_LAYOUT_HEAP_SIZE ( 80 * 1024 )
+#define VG_FEATURE_FONT_COMPLEX_LAYOUT_HEAP_SIZE (80 * 1024)
 #endif
 
 /*
@@ -209,7 +227,7 @@ extern "C" {
 
 #elif defined(VG_FEATURE_BUFFERED_VECTOR_IMAGE)
 #error "The BufferedVectorImage feature requires the support of several Graphics Context formats".
-#endif
+#endif // if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
 
 // -----------------------------------------------------------------------------
 // EOF
@@ -219,4 +237,4 @@ extern "C" {
 }
 #endif
 
-#endif // !defined MICROVG_CONFIGURATION_H
+#endif // !defined VG_CONFIGURATION_H

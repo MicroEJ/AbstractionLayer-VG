@@ -1,5 +1,5 @@
-/* 
- * Copyright 2023 MicroEJ Corp. All rights reserved.
+/*
+ * Copyright 2023-2024 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -9,8 +9,8 @@
 extern "C" {
 #endif
 
-
 /*
+ * @file
  * @brief Provides drawing functions called by MicroVG native drawing functions.
  *
  * This header file follows strictly the same concept as ui_drawing.h but for MicroVG
@@ -31,6 +31,23 @@ extern "C" {
 // API
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Called when initializing MicroVG.
+ *
+ * This function should initialize the necessary variables.
+ */
+void VG_DRAWING_initialize(void);
+
+/*
+ * @brief Tells if the image is closed (closed just before calling the native
+ * function).
+ *
+ * @param[in] image: the image to check.
+ *
+ * @return true if the image is closed.
+ */
+bool VG_DRAWING_image_is_closed(const MICROVG_Image *image);
+
 /*
  * @brief Gets the image size. The image structure format is VEE Port specific.
  *
@@ -38,15 +55,13 @@ extern "C" {
  * @param[out] width: the image width
  * @param[out] height: the image height
  */
-void VG_DRAWING_get_image_size(void* image, float* width, float* height);
+void VG_DRAWING_get_image_size(const MICROVG_Image *image, float *width, float *height);
 
 /*
  * @brief Draws a path filled with the specified color (not the one of the Graphics Context).
  *
  * @param[in] gc: the destination
  * @param[in] path: the path's data
- * @param[in] x: the destination X coordinate
- * @param[in] y: the destination Y coordinate
  * @param[in] matrix: the deformation to apply
  * @param[in] fillRule: the fill type
  * @param[in] blend: the blend mode
@@ -54,15 +69,14 @@ void VG_DRAWING_get_image_size(void* image, float* width, float* height);
  *
  * @return the drawing status.
  */
-DRAWING_Status VG_DRAWING_drawPath(MICROUI_GraphicsContext* gc, jbyte* path, jint x, jint y, jfloat* matrix, jint fillRule, jint blend, jint color);
+DRAWING_Status VG_DRAWING_drawPath(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule, jint blend,
+                                   jint color);
 
 /*
  * @brief Draws a path filled with a linear gradient.
  *
  * @param[in] gc: the destination
  * @param[in] path: the path's data
- * @param[in] x: the destination X coordinate
- * @param[in] y: the destination Y coordinate
  * @param[in] matrix: the deformation to apply
  * @param[in] fillRule: the fill type
  * @param[in] alpha: the global opacity to apply
@@ -72,7 +86,8 @@ DRAWING_Status VG_DRAWING_drawPath(MICROUI_GraphicsContext* gc, jbyte* path, jin
  *
  * @return the drawing status.
  */
-DRAWING_Status VG_DRAWING_drawGradient(MICROUI_GraphicsContext* gc, jbyte* path, jint x, jint y, jfloat* matrix, jint fillRule, jint alpha, jint blend, jint* gradient, jfloat* gradientMatrix);
+DRAWING_Status VG_DRAWING_drawGradient(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule,
+                                       jint alpha, jint blend, jint *gradient, jfloat *gradientMatrix);
 
 /*
  * @brief  Draws a string with the color of the Graphics Context.
@@ -84,8 +99,6 @@ DRAWING_Status VG_DRAWING_drawGradient(MICROUI_GraphicsContext* gc, jbyte* path,
  * @param[in] text the array of characters to draw.
  * @param[in] faceHandle the font reference handle.
  * @param[in] size the height of the font in pixels.
- * @param[in] x the horizontal coordinate of the top/left of the first drawn character.
- * @param[in] y the vertical coordinate of the top/left of the first drawn character.
  * @param[in] matrix: deformation matrix, may be null (means identity)
  * @param[in] alpha the opacity level to apply to the character.
  * @param[in] blend the blend mode to use
@@ -93,7 +106,8 @@ DRAWING_Status VG_DRAWING_drawGradient(MICROUI_GraphicsContext* gc, jbyte* path,
  *
  * @return the drawing status.
  */
-DRAWING_Status VG_DRAWING_drawString(MICROUI_GraphicsContext* gc, jchar* text, jint faceHandle, jfloat size,  jfloat x, jfloat y,  jfloat* matrix, jint alpha, jint blend, jfloat letterSpacing);
+DRAWING_Status VG_DRAWING_drawString(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle, jfloat size,
+                                     jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing);
 
 /*
  * @brief Draws a string with a linear gradient.
@@ -102,8 +116,6 @@ DRAWING_Status VG_DRAWING_drawString(MICROUI_GraphicsContext* gc, jchar* text, j
  * @param[in] text the array of characters to draw.
  * @param[in] faceHandle the font reference handle.
  * @param[in] size the height of the font in pixels.
- * @param[in] x the horizontal coordinate of the top/left of the first drawn character.
- * @param[in] y the vertical coordinate of the top/left of the first drawn character.
  * @param[in] matrix: deformation matrix, may be null (means identity)
  * @param[in] alpha the opacity level to apply to the character.
  * @param[in] blend the blend mode to use
@@ -113,7 +125,9 @@ DRAWING_Status VG_DRAWING_drawString(MICROUI_GraphicsContext* gc, jchar* text, j
  *
  * @return the drawing status.
  */
-DRAWING_Status VG_DRAWING_drawStringGradient(MICROUI_GraphicsContext* gc, jchar* text, jint faceHandle, jfloat size,  jfloat x, jfloat y,  jfloat* matrix, jint alpha, jint blend, jfloat letterSpacing, jint *gradientData, jfloat *gradientMatrix);
+DRAWING_Status VG_DRAWING_drawStringGradient(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle, jfloat size,
+                                             jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing,
+                                             jint *gradientData, jfloat *gradientMatrix);
 
 /*
  * @brief Draws a string along a circle, with the color of the Graphics Context.
@@ -122,8 +136,6 @@ DRAWING_Status VG_DRAWING_drawStringGradient(MICROUI_GraphicsContext* gc, jchar*
  * @param[in] text the array of characters to draw.
  * @param[in] faceHandle the font reference handle.
  * @param[in] size the height of the font in pixels.
- * @param[in] x the horizontal coordinate of the top/left of the first drawn character.
- * @param[in] y the vertical coordinate of the top/left of the first drawn character.
  * @param[in] matrix: deformation matrix, may be null (means identity)
  * @param[in] alpha the opacity level to apply to the character.
  * @param[in] blend the blend mode to use
@@ -133,7 +145,9 @@ DRAWING_Status VG_DRAWING_drawStringGradient(MICROUI_GraphicsContext* gc, jchar*
  *
  * @return the drawing status.
  */
-DRAWING_Status VG_DRAWING_drawStringOnCircle(MICROUI_GraphicsContext* gc, jchar* text, jint faceHandle, jfloat size,  jint x, jint y, jfloat* matrix, jint alpha, jint blend, jfloat letterSpacing, jfloat radius, jint direction);
+DRAWING_Status VG_DRAWING_drawStringOnCircle(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle, jfloat size,
+                                             jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing,
+                                             jfloat radius, jint direction);
 
 /*
  * @brief Draws a string along a circle, with a linear gradient.
@@ -142,8 +156,6 @@ DRAWING_Status VG_DRAWING_drawStringOnCircle(MICROUI_GraphicsContext* gc, jchar*
  * @param[in] text the array of characters to draw.
  * @param[in] faceHandle the font reference handle.
  * @param[in] size the height of the font in pixels.
- * @param[in] x the horizontal coordinate of the top/left of the first drawn character.
- * @param[in] y the vertical coordinate of the top/left of the first drawn character.
  * @param[in] matrix: deformation matrix, may be null (means identity)
  * @param[in] alpha the opacity level to apply to the character.
  * @param[in] blend the blend mode to use
@@ -155,7 +167,10 @@ DRAWING_Status VG_DRAWING_drawStringOnCircle(MICROUI_GraphicsContext* gc, jchar*
  *
  * @return the drawing status.
  */
-DRAWING_Status VG_DRAWING_drawStringOnCircleGradient(MICROUI_GraphicsContext* gc, jchar* text, jint faceHandle, jfloat size,  jint x, jint y, jfloat* matrix, jint alpha, jint blend, jfloat letterSpacing, jfloat radius, jint direction, jint *gradientData, jfloat *gradientMatrix);
+DRAWING_Status VG_DRAWING_drawStringOnCircleGradient(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
+                                                     jfloat size, jfloat *matrix, jint alpha, jint blend,
+                                                     jfloat letterSpacing, jfloat radius, jint direction,
+                                                     jint *gradientData, jfloat *gradientMatrix);
 
 /*
  * @brief Draws an image with transformation and opacity. Optionally apply an animation and / or a color filtering.
@@ -170,7 +185,8 @@ DRAWING_Status VG_DRAWING_drawStringOnCircleGradient(MICROUI_GraphicsContext* gc
  *
  * @return the drawing status.
  */
-DRAWING_Status VG_DRAWING_drawImage(MICROUI_GraphicsContext* gc, void* image, jfloat *matrix, jint alpha, jlong elapsed, const float color_matrix[], jint* errno) ;
+DRAWING_Status VG_DRAWING_drawImage(MICROUI_GraphicsContext *gc, void *image, jfloat *matrix, jint alpha, jlong elapsed,
+                                    const float color_matrix[], jint *errno);
 
 // --------------------------------------------------------------------------------
 // EOF
