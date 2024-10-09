@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2024-10-09
+
+- Compatible with MicroEJ VG Pack 1.7.x.
+
+### Added
+
+- Add `ui_font_drawing_vg.c` that implements the extension of MicroUI Font from a MicroVG Font.
+- Add `VG_FREETYPE_string_width` (extracted from `LLVG_FONT_IMPL_string_width`).
+
+### Changed
+
+- Make this module compatible with MicroUI module 14.1.0.
+- Change the version of `MICROVG_CONFIGURATION_VERSION` (4).
+
 ## [6.0.1] - 2024-07-23
 
 - Compatible with MicroEJ VG Pack 1.6.x.

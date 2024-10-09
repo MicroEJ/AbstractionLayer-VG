@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 6.0.1
+ * @version 7.0.0
  */
 
 #include "vg_configuration.h"

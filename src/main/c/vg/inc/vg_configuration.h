@@ -31,7 +31,13 @@ extern "C" {
  * This value must be incremented by the implementor of the CCO when a configuration define is added, deleted or
  * modified.
  */
-#define MICROVG_CONFIGURATION_VERSION (3)
+#define MICROVG_CONFIGURATION_VERSION (4)
+
+// -----------------------------------------------------------------------------
+// Includes
+// -----------------------------------------------------------------------------
+
+#include "ui_configuration.h"
 
 // -----------------------------------------------------------------------------
 // MicroVG's Path Options
@@ -208,7 +214,7 @@ extern "C" {
  * BufferedVectorImage (even if the available number of supported GraphicsContext
  * formats is higher than 1).
  */
-#if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 /*
  * @brief Comment the define VG_FEATURE_BUFFERED_VECTOR_IMAGE to remove the support
@@ -227,7 +233,7 @@ extern "C" {
 
 #elif defined(VG_FEATURE_BUFFERED_VECTOR_IMAGE)
 #error "The BufferedVectorImage feature requires the support of several Graphics Context formats".
-#endif // if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#endif // if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 // -----------------------------------------------------------------------------
 // EOF

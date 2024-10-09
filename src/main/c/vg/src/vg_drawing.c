@@ -15,7 +15,7 @@
  * library.
  *
  * @author MicroEJ Developer Team
- * @version 6.0.1
+ * @version 7.0.0
  * @see ui_drawing.c
  */
 
@@ -25,13 +25,14 @@
 
 #include "vg_drawing.h"
 #include "vg_drawing_stub.h"
+#include "ui_configuration.h"
 #include "bsp_util.h"
 
 // --------------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------------
 
-#if !defined(LLUI_GC_SUPPORTED_FORMATS) || (LLUI_GC_SUPPORTED_FORMATS <= 1)
+#if !defined(UI_GC_SUPPORTED_FORMATS) || (UI_GC_SUPPORTED_FORMATS <= 1)
 
 /*
  * The function VG_DRAWING_DEFAULT_xxx() are directly called by LLVG_PAINTER_impl.c
@@ -46,7 +47,7 @@
 #define VG_DRAWING_DEFAULT_drawStringOnCircleGradient VG_DRAWING_drawStringOnCircleGradient
 #define VG_DRAWING_DEFAULT_drawImage VG_DRAWING_drawImage
 
-#else // !defined(LLUI_GC_SUPPORTED_FORMATS) || (LLUI_GC_SUPPORTED_FORMATS <= 1)
+#else // !defined(UI_GC_SUPPORTED_FORMATS) || (UI_GC_SUPPORTED_FORMATS <= 1)
 
 /*
  * The functions VG_DRAWING_DEFAULT_xxx() are indirectly called through some tables.
@@ -62,13 +63,13 @@
 #define VG_DRAWING_DEFAULT_drawStringOnCircleGradient VG_DRAWING_drawStringOnCircleGradient_0
 #define VG_DRAWING_DEFAULT_drawImage VG_DRAWING_drawImage_0
 
-#endif // !defined(LLUI_GC_SUPPORTED_FORMATS) || (LLUI_GC_SUPPORTED_FORMATS <= 1)
+#endif // !defined(UI_GC_SUPPORTED_FORMATS) || (UI_GC_SUPPORTED_FORMATS <= 1)
 
 // --------------------------------------------------------------------------------
 // Extern functions
 // --------------------------------------------------------------------------------
 
-#if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 /*
  * @brief Set of drawing functions according to the index of the destination format in
@@ -77,7 +78,7 @@
  * These functions must be declared in other H files.
  */
 
-#if (LLUI_GC_SUPPORTED_FORMATS > 3)
+#if (UI_GC_SUPPORTED_FORMATS > 3)
 #error "Increase the number of following functions and update the next tables"
 #endif
 
@@ -85,18 +86,21 @@ extern DRAWING_Status VG_DRAWING_drawPath_0(MICROUI_GraphicsContext *gc, jbyte *
                                             jint blend, jint color);
 extern DRAWING_Status VG_DRAWING_drawGradient_0(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule,
                                                 jint alpha, jint blend, jint *gradient, jfloat *gradientMatrix);
-extern DRAWING_Status VG_DRAWING_drawString_0(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle, jfloat size,
-                                              jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing);
-extern DRAWING_Status VG_DRAWING_drawStringGradient_0(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                      jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                      jfloat letterSpacing, jint *gradientData, jfloat *gradientMatrix);
-extern DRAWING_Status VG_DRAWING_drawStringOnCircle_0(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                      jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                      jfloat letterSpacing, jfloat radius, jint direction);
-extern DRAWING_Status VG_DRAWING_drawStringOnCircleGradient_0(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                              jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                              jfloat letterSpacing, jfloat radius, jint direction,
-                                                              jint *gradientData, jfloat *gradientMatrix);
+extern DRAWING_Status VG_DRAWING_drawString_0(MICROUI_GraphicsContext *gc, jchar *text, jint length, jint faceHandle,
+                                              jfloat size, jfloat *matrix, jint alpha, jint blend,
+                                              jfloat letterSpacing);
+extern DRAWING_Status VG_DRAWING_drawStringGradient_0(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                      jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                      jint blend, jfloat letterSpacing, jint *gradientData,
+                                                      jfloat *gradientMatrix);
+extern DRAWING_Status VG_DRAWING_drawStringOnCircle_0(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                      jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                      jint blend, jfloat letterSpacing, jfloat radius, jint direction);
+extern DRAWING_Status VG_DRAWING_drawStringOnCircleGradient_0(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                              jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                              jint blend, jfloat letterSpacing, jfloat radius,
+                                                              jint direction, jint *gradientData,
+                                                              jfloat *gradientMatrix);
 extern DRAWING_Status VG_DRAWING_drawImage_0(MICROUI_GraphicsContext *gc, void *image, jfloat *matrix, jint alpha,
                                              jlong elapsed, const float color_matrix[], jint *errno);
 
@@ -104,49 +108,55 @@ extern DRAWING_Status VG_DRAWING_drawPath_1(MICROUI_GraphicsContext *gc, jbyte *
                                             jint blend, jint color);
 extern DRAWING_Status VG_DRAWING_drawGradient_1(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule,
                                                 jint alpha, jint blend, jint *gradient, jfloat *gradientMatrix);
-extern DRAWING_Status VG_DRAWING_drawString_1(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle, jfloat size,
-                                              jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing);
-extern DRAWING_Status VG_DRAWING_drawStringGradient_1(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                      jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                      jfloat letterSpacing, jint *gradientData, jfloat *gradientMatrix);
-extern DRAWING_Status VG_DRAWING_drawStringOnCircle_1(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                      jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                      jfloat letterSpacing, jfloat radius, jint direction);
-extern DRAWING_Status VG_DRAWING_drawStringOnCircleGradient_1(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                              jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                              jfloat letterSpacing, jfloat radius, jint direction,
-                                                              jint *gradientData, jfloat *gradientMatrix);
+extern DRAWING_Status VG_DRAWING_drawString_1(MICROUI_GraphicsContext *gc, jchar *text, jint length, jint faceHandle,
+                                              jfloat size, jfloat *matrix, jint alpha, jint blend,
+                                              jfloat letterSpacing);
+extern DRAWING_Status VG_DRAWING_drawStringGradient_1(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                      jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                      jint blend, jfloat letterSpacing, jint *gradientData,
+                                                      jfloat *gradientMatrix);
+extern DRAWING_Status VG_DRAWING_drawStringOnCircle_1(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                      jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                      jint blend, jfloat letterSpacing, jfloat radius, jint direction);
+extern DRAWING_Status VG_DRAWING_drawStringOnCircleGradient_1(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                              jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                              jint blend, jfloat letterSpacing, jfloat radius,
+                                                              jint direction, jint *gradientData,
+                                                              jfloat *gradientMatrix);
 extern DRAWING_Status VG_DRAWING_drawImage_1(MICROUI_GraphicsContext *gc, void *image, jfloat *matrix, jint alpha,
                                              jlong elapsed, const float color_matrix[], jint *errno);
 
-#if (LLUI_GC_SUPPORTED_FORMATS > 2)
+#if (UI_GC_SUPPORTED_FORMATS > 2)
 extern DRAWING_Status VG_DRAWING_drawPath_2(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule,
                                             jint blend, jint color);
 extern DRAWING_Status VG_DRAWING_drawGradient_2(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule,
                                                 jint alpha, jint blend, jint *gradient, jfloat *gradientMatrix);
-extern DRAWING_Status VG_DRAWING_drawString_2(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle, jfloat size,
-                                              jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing);
-extern DRAWING_Status VG_DRAWING_drawStringGradient_2(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                      jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                      jfloat letterSpacing, jint *gradientData, jfloat *gradientMatrix);
-extern DRAWING_Status VG_DRAWING_drawStringOnCircle_2(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                      jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                      jfloat letterSpacing, jfloat radius, jint direction);
-extern DRAWING_Status VG_DRAWING_drawStringOnCircleGradient_2(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                              jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                              jfloat letterSpacing, jfloat radius, jint direction,
-                                                              jint *gradientData, jfloat *gradientMatrix);
+extern DRAWING_Status VG_DRAWING_drawString_2(MICROUI_GraphicsContext *gc, jchar *text, jint length, jint faceHandle,
+                                              jfloat size, jfloat *matrix, jint alpha, jint blend,
+                                              jfloat letterSpacing);
+extern DRAWING_Status VG_DRAWING_drawStringGradient_2(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                      jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                      jint blend, jfloat letterSpacing, jint *gradientData,
+                                                      jfloat *gradientMatrix);
+extern DRAWING_Status VG_DRAWING_drawStringOnCircle_2(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                      jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                      jint blend, jfloat letterSpacing, jfloat radius, jint direction);
+extern DRAWING_Status VG_DRAWING_drawStringOnCircleGradient_2(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                              jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                              jint blend, jfloat letterSpacing, jfloat radius,
+                                                              jint direction, jint *gradientData,
+                                                              jfloat *gradientMatrix);
 extern DRAWING_Status VG_DRAWING_drawImage_2(MICROUI_GraphicsContext *gc, void *image, jfloat *matrix, jint alpha,
                                              jlong elapsed, const float color_matrix[], jint *errno);
-#endif // (LLUI_GC_SUPPORTED_FORMATS > 2)
+#endif // (UI_GC_SUPPORTED_FORMATS > 2)
 
-#endif // defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#endif // defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 // --------------------------------------------------------------------------------
 // Typedef of drawing functions
 // --------------------------------------------------------------------------------
 
-#if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 /*
  * @brief Typedef used by next tables. See the functions comments in vg_drawing.h
@@ -157,36 +167,37 @@ typedef DRAWING_Status (* VG_DRAWING_drawPath_t) (MICROUI_GraphicsContext *gc, j
 typedef DRAWING_Status (* VG_DRAWING_drawGradient_t) (MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix,
                                                       jint fillRule, jint alpha, jint blend, jint *gradient,
                                                       jfloat *gradientMatrix);
-typedef DRAWING_Status (* VG_DRAWING_drawString_t) (MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                    jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                    jfloat letterSpacing);
-typedef DRAWING_Status (* VG_DRAWING_drawStringGradient_t) (MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                            jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                            jfloat letterSpacing, jint *gradientData,
+typedef DRAWING_Status (* VG_DRAWING_drawString_t) (MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                    jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                    jint blend, jfloat letterSpacing);
+typedef DRAWING_Status (* VG_DRAWING_drawStringGradient_t) (MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                            jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                            jint blend, jfloat letterSpacing, jint *gradientData,
                                                             jfloat *gradientMatrix);
-typedef DRAWING_Status (* VG_DRAWING_drawStringOnCircle_t) (MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                            jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                            jfloat letterSpacing, jfloat radius, jint direction);
+typedef DRAWING_Status (* VG_DRAWING_drawStringOnCircle_t) (MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                            jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                            jint blend, jfloat letterSpacing, jfloat radius,
+                                                            jint direction);
 typedef DRAWING_Status (* VG_DRAWING_drawStringOnCircleGradient_t) (MICROUI_GraphicsContext *gc, jchar *text,
-                                                                    jint faceHandle, jfloat size, jfloat *matrix,
-                                                                    jint alpha, jint blend, jfloat letterSpacing,
-                                                                    jfloat radius, jint direction, jint *gradientData,
-                                                                    jfloat *gradientMatrix);
+                                                                    jint length, jint faceHandle, jfloat size,
+                                                                    jfloat *matrix, jint alpha, jint blend,
+                                                                    jfloat letterSpacing, jfloat radius, jint direction,
+                                                                    jint *gradientData, jfloat *gradientMatrix);
 typedef DRAWING_Status (* VG_DRAWING_drawImage_t) (MICROUI_GraphicsContext *gc, void *image, jfloat *matrix, jint alpha,
                                                    jlong elapsed, const float color_matrix[], jint *errno);
 
-#endif // #if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#endif // #if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 // --------------------------------------------------------------------------------
 // Tables according to the destination format.
 // --------------------------------------------------------------------------------
 
-#if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 static const VG_DRAWING_drawPath_t VG_DRAWER_drawPath[] = {
 	&VG_DRAWING_drawPath_0,
 	&VG_DRAWING_drawPath_1,
-#if (LLUI_GC_SUPPORTED_FORMATS > 2)
+#if (UI_GC_SUPPORTED_FORMATS > 2)
 	&VG_DRAWING_drawPath_2,
 #endif
 };
@@ -194,7 +205,7 @@ static const VG_DRAWING_drawPath_t VG_DRAWER_drawPath[] = {
 static const VG_DRAWING_drawGradient_t VG_DRAWER_drawGradient[] = {
 	&VG_DRAWING_drawGradient_0,
 	&VG_DRAWING_drawGradient_1,
-#if (LLUI_GC_SUPPORTED_FORMATS > 2)
+#if (UI_GC_SUPPORTED_FORMATS > 2)
 	&VG_DRAWING_drawGradient_2,
 #endif
 };
@@ -202,7 +213,7 @@ static const VG_DRAWING_drawGradient_t VG_DRAWER_drawGradient[] = {
 static const VG_DRAWING_drawString_t VG_DRAWER_drawString[] = {
 	&VG_DRAWING_drawString_0,
 	&VG_DRAWING_drawString_1,
-#if (LLUI_GC_SUPPORTED_FORMATS > 2)
+#if (UI_GC_SUPPORTED_FORMATS > 2)
 	&VG_DRAWING_drawString_2,
 #endif
 };
@@ -210,7 +221,7 @@ static const VG_DRAWING_drawString_t VG_DRAWER_drawString[] = {
 static const VG_DRAWING_drawStringGradient_t VG_DRAWER_drawStringGradient[] = {
 	&VG_DRAWING_drawStringGradient_0,
 	&VG_DRAWING_drawStringGradient_1,
-#if (LLUI_GC_SUPPORTED_FORMATS > 2)
+#if (UI_GC_SUPPORTED_FORMATS > 2)
 	&VG_DRAWING_drawStringGradient_2,
 #endif
 };
@@ -218,7 +229,7 @@ static const VG_DRAWING_drawStringGradient_t VG_DRAWER_drawStringGradient[] = {
 static const VG_DRAWING_drawStringOnCircle_t VG_DRAWER_drawStringOnCircle[] = {
 	&VG_DRAWING_drawStringOnCircle_0,
 	&VG_DRAWING_drawStringOnCircle_1,
-#if (LLUI_GC_SUPPORTED_FORMATS > 2)
+#if (UI_GC_SUPPORTED_FORMATS > 2)
 	&VG_DRAWING_drawStringOnCircle_2,
 #endif
 };
@@ -226,7 +237,7 @@ static const VG_DRAWING_drawStringOnCircle_t VG_DRAWER_drawStringOnCircle[] = {
 static const VG_DRAWING_drawStringOnCircleGradient_t VG_DRAWER_drawStringOnCircleGradient[] = {
 	&VG_DRAWING_drawStringOnCircleGradient_0,
 	&VG_DRAWING_drawStringOnCircleGradient_1,
-#if (LLUI_GC_SUPPORTED_FORMATS > 2)
+#if (UI_GC_SUPPORTED_FORMATS > 2)
 	&VG_DRAWING_drawStringOnCircleGradient_2,
 #endif
 };
@@ -234,12 +245,12 @@ static const VG_DRAWING_drawStringOnCircleGradient_t VG_DRAWER_drawStringOnCircl
 static const VG_DRAWING_drawImage_t VG_DRAWER_drawImage[] = {
 	&VG_DRAWING_drawImage_0,
 	&VG_DRAWING_drawImage_1,
-#if (LLUI_GC_SUPPORTED_FORMATS > 2)
+#if (UI_GC_SUPPORTED_FORMATS > 2)
 	&VG_DRAWING_drawImage_2,
 #endif
 };
 
-#endif /* if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1) */
+#endif /* if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1) */
 
 // --------------------------------------------------------------------------------
 // vg_drawing.h functions
@@ -271,36 +282,40 @@ BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_DEFAULT_drawGradient(MICROUI_Gra
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_DEFAULT_drawString(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                   jint faceHandle, jfloat size, jfloat *matrix,
-                                                                   jint alpha, jint blend, jfloat letterSpacing) {
-	return VG_DRAWING_STUB_drawString(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing);
+                                                                   jint length, jint faceHandle, jfloat size,
+                                                                   jfloat *matrix, jint alpha, jint blend,
+                                                                   jfloat letterSpacing) {
+	return VG_DRAWING_STUB_drawString(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_DEFAULT_drawStringGradient(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                           jint faceHandle, jfloat size, jfloat *matrix,
-                                                                           jint alpha, jint blend, jfloat letterSpacing,
-                                                                           jint *gradientData, jfloat *gradientMatrix) {
-	return VG_DRAWING_STUB_drawStringGradient(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing,
+                                                                           jint length, jint faceHandle, jfloat size,
+                                                                           jfloat *matrix, jint alpha, jint blend,
+                                                                           jfloat letterSpacing, jint *gradientData,
+                                                                           jfloat *gradientMatrix) {
+	return VG_DRAWING_STUB_drawStringGradient(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing,
 	                                          gradientData, gradientMatrix);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_DEFAULT_drawStringOnCircle(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                           jint faceHandle, jfloat size, jfloat *matrix,
-                                                                           jint alpha, jint blend, jfloat letterSpacing,
-                                                                           jfloat radius, jint direction) {
-	return VG_DRAWING_STUB_drawStringOnCircle(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing, radius,
-	                                          direction);
+                                                                           jint length, jint faceHandle, jfloat size,
+                                                                           jfloat *matrix, jint alpha, jint blend,
+                                                                           jfloat letterSpacing, jfloat radius,
+                                                                           jint direction) {
+	return VG_DRAWING_STUB_drawStringOnCircle(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing,
+	                                          radius, direction);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_DEFAULT_drawStringOnCircleGradient(MICROUI_GraphicsContext *gc,
-                                                                                   jchar *text, jint faceHandle,
-                                                                                   jfloat size, jfloat *matrix,
-                                                                                   jint alpha, jint blend,
-                                                                                   jfloat letterSpacing, jfloat radius,
-                                                                                   jint direction, jint *gradientData,
+                                                                                   jchar *text, jint length,
+                                                                                   jint faceHandle, jfloat size,
+                                                                                   jfloat *matrix, jint alpha,
+                                                                                   jint blend, jfloat letterSpacing,
+                                                                                   jfloat radius, jint direction,
+                                                                                   jint *gradientData,
                                                                                    jfloat *gradientMatrix) {
-	return VG_DRAWING_STUB_drawStringOnCircleGradient(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing,
-	                                                  radius, direction, gradientData, gradientMatrix);
+	return VG_DRAWING_STUB_drawStringOnCircleGradient(gc, text, length, faceHandle, size, matrix, alpha, blend,
+	                                                  letterSpacing, radius, direction, gradientData, gradientMatrix);
 }
 
 // See the header file for the function documentation
@@ -310,7 +325,7 @@ BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_DEFAULT_drawImage(MICROUI_Graphi
 	return VG_DRAWING_STUB_drawImage(gc, sni_context, matrix, alpha, elapsed, color_matrix, errno);
 }
 
-#if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 /*
  * The VEE port supports several destination formats. All drawing functions use a
@@ -333,34 +348,37 @@ BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawGradient(MICROUI_GraphicsCon
 	return (*VG_DRAWER_drawGradient[gc->drawer])(gc, path, matrix, fillRule, alpha, blend, gradient, gradientMatrix);
 }
 
-BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawString(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                           jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                           jfloat letterSpacing) {
-	return (*VG_DRAWER_drawString[gc->drawer])(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing);
+BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawString(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                           jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                           jint blend, jfloat letterSpacing) {
+	return (*VG_DRAWER_drawString[gc->drawer])(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawStringGradient(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                   jint faceHandle, jfloat size, jfloat *matrix,
-                                                                   jint alpha, jint blend, jfloat letterSpacing,
-                                                                   jint *gradientData, jfloat *gradientMatrix) {
-	return (*VG_DRAWER_drawStringGradient[gc->drawer])(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing,
-	                                                   gradientData, gradientMatrix);
+                                                                   jint length, jint faceHandle, jfloat size,
+                                                                   jfloat *matrix, jint alpha, jint blend,
+                                                                   jfloat letterSpacing, jint *gradientData,
+                                                                   jfloat *gradientMatrix) {
+	return (*VG_DRAWER_drawStringGradient[gc->drawer])(gc, text, length, faceHandle, size, matrix, alpha, blend,
+	                                                   letterSpacing, gradientData, gradientMatrix);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawStringOnCircle(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                   jint faceHandle, jfloat size, jfloat *matrix,
-                                                                   jint alpha, jint blend, jfloat letterSpacing,
-                                                                   jfloat radius, jint direction) {
-	return (*VG_DRAWER_drawStringOnCircle[gc->drawer])(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing,
-	                                                   radius, direction);
+                                                                   jint length, jint faceHandle, jfloat size,
+                                                                   jfloat *matrix, jint alpha, jint blend,
+                                                                   jfloat letterSpacing, jfloat radius,
+                                                                   jint direction) {
+	return (*VG_DRAWER_drawStringOnCircle[gc->drawer])(gc, text, length, faceHandle, size, matrix, alpha, blend,
+	                                                   letterSpacing, radius, direction);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawStringOnCircleGradient(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                           jint faceHandle, jfloat size, jfloat *matrix,
-                                                                           jint alpha, jint blend, jfloat letterSpacing,
-                                                                           jfloat radius, jint direction,
-                                                                           jint *gradientData, jfloat *gradientMatrix) {
-	return (*VG_DRAWER_drawStringOnCircleGradient[gc->drawer])(gc, text, faceHandle, size, matrix, alpha, blend,
+                                                                           jint length, jint faceHandle, jfloat size,
+                                                                           jfloat *matrix, jint alpha, jint blend,
+                                                                           jfloat letterSpacing, jfloat radius,
+                                                                           jint direction, jint *gradientData,
+                                                                           jfloat *gradientMatrix) {
+	return (*VG_DRAWER_drawStringOnCircleGradient[gc->drawer])(gc, text, length, faceHandle, size, matrix, alpha, blend,
 	                                                           letterSpacing, radius, direction, gradientData,
 	                                                           gradientMatrix);
 }
@@ -390,36 +408,38 @@ BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawGradient_1(MICROUI_GraphicsC
 	return VG_DRAWING_STUB_drawGradient(gc, path, matrix, fillRule, alpha, blend, gradient, gradientMatrix);
 }
 
-BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawString_1(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                             jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                             jfloat letterSpacing) {
-	return VG_DRAWING_STUB_drawString(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing);
+BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawString_1(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                             jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                             jint blend, jfloat letterSpacing) {
+	return VG_DRAWING_STUB_drawString(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawStringGradient_1(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                     jint faceHandle, jfloat size, jfloat *matrix,
-                                                                     jint alpha, jint blend, jfloat letterSpacing,
-                                                                     jint *gradientData, jfloat *gradientMatrix) {
-	return VG_DRAWING_STUB_drawStringGradient(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing,
+                                                                     jint length, jint faceHandle, jfloat size,
+                                                                     jfloat *matrix, jint alpha, jint blend,
+                                                                     jfloat letterSpacing, jint *gradientData,
+                                                                     jfloat *gradientMatrix) {
+	return VG_DRAWING_STUB_drawStringGradient(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing,
 	                                          gradientData, gradientMatrix);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawStringOnCircle_1(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                     jint faceHandle, jfloat size, jfloat *matrix,
-                                                                     jint alpha, jint blend, jfloat letterSpacing,
-                                                                     jfloat radius, jint direction) {
-	return VG_DRAWING_STUB_drawStringOnCircle(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing, radius,
-	                                          direction);
+                                                                     jint length, jint faceHandle, jfloat size,
+                                                                     jfloat *matrix, jint alpha, jint blend,
+                                                                     jfloat letterSpacing, jfloat radius,
+                                                                     jint direction) {
+	return VG_DRAWING_STUB_drawStringOnCircle(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing,
+	                                          radius, direction);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawStringOnCircleGradient_1(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                             jint faceHandle, jfloat size,
+                                                                             jint length, jint faceHandle, jfloat size,
                                                                              jfloat *matrix, jint alpha, jint blend,
                                                                              jfloat letterSpacing, jfloat radius,
                                                                              jint direction, jint *gradientData,
                                                                              jfloat *gradientMatrix) {
-	return VG_DRAWING_STUB_drawStringOnCircleGradient(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing,
-	                                                  radius, direction, gradientData, gradientMatrix);
+	return VG_DRAWING_STUB_drawStringOnCircleGradient(gc, text, length, faceHandle, size, matrix, alpha, blend,
+	                                                  letterSpacing, radius, direction, gradientData, gradientMatrix);
 }
 
 // See the header file for the function documentation
@@ -429,7 +449,7 @@ BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawImage_1(MICROUI_GraphicsCont
 	return VG_DRAWING_STUB_drawImage(gc, sni_context, matrix, alpha, elapsed, color_matrix, errno);
 }
 
-#if (LLUI_GC_SUPPORTED_FORMATS > 2)
+#if (UI_GC_SUPPORTED_FORMATS > 2)
 
 /*
  * The next functions are used as elements "2" of the tables. They call STUB functions and should be
@@ -449,36 +469,38 @@ BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawGradient_2(MICROUI_GraphicsC
 	return VG_DRAWING_STUB_drawGradient(gc, path, matrix, fillRule, alpha, blend, gradient, gradientMatrix);
 }
 
-BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawString_2(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle,
-                                                             jfloat size, jfloat *matrix, jint alpha, jint blend,
-                                                             jfloat letterSpacing) {
-	return VG_DRAWING_STUB_drawString(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing);
+BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawString_2(MICROUI_GraphicsContext *gc, jchar *text, jint length,
+                                                             jint faceHandle, jfloat size, jfloat *matrix, jint alpha,
+                                                             jint blend, jfloat letterSpacing) {
+	return VG_DRAWING_STUB_drawString(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawStringGradient_2(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                     jint faceHandle, jfloat size, jfloat *matrix,
-                                                                     jint alpha, jint blend, jfloat letterSpacing,
-                                                                     jint *gradientData, jfloat *gradientMatrix) {
-	return VG_DRAWING_STUB_drawStringGradient(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing,
+                                                                     jint length, jint faceHandle, jfloat size,
+                                                                     jfloat *matrix, jint alpha, jint blend,
+                                                                     jfloat letterSpacing, jint *gradientData,
+                                                                     jfloat *gradientMatrix) {
+	return VG_DRAWING_STUB_drawStringGradient(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing,
 	                                          gradientData, gradientMatrix);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawStringOnCircle_2(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                     jint faceHandle, jfloat size, jfloat *matrix,
-                                                                     jint alpha, jint blend, jfloat letterSpacing,
-                                                                     jfloat radius, jint direction) {
-	return VG_DRAWING_STUB_drawStringOnCircle(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing, radius,
-	                                          direction);
+                                                                     jint length, jint faceHandle, jfloat size,
+                                                                     jfloat *matrix, jint alpha, jint blend,
+                                                                     jfloat letterSpacing, jfloat radius,
+                                                                     jint direction) {
+	return VG_DRAWING_STUB_drawStringOnCircle(gc, text, length, faceHandle, size, matrix, alpha, blend, letterSpacing,
+	                                          radius, direction);
 }
 
 BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawStringOnCircleGradient_2(MICROUI_GraphicsContext *gc, jchar *text,
-                                                                             jint faceHandle, jfloat size,
+                                                                             jint length, jint faceHandle, jfloat size,
                                                                              jfloat *matrix, jint alpha, jint blend,
                                                                              jfloat letterSpacing, jfloat radius,
                                                                              jint direction, jint *gradientData,
                                                                              jfloat *gradientMatrix) {
-	return VG_DRAWING_STUB_drawStringOnCircleGradient(gc, text, faceHandle, size, matrix, alpha, blend, letterSpacing,
-	                                                  radius, direction, gradientData, gradientMatrix);
+	return VG_DRAWING_STUB_drawStringOnCircleGradient(gc, text, length, faceHandle, size, matrix, alpha, blend,
+	                                                  letterSpacing, radius, direction, gradientData, gradientMatrix);
 }
 
 // See the header file for the function documentation
@@ -488,9 +510,9 @@ BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawImage_2(MICROUI_GraphicsCont
 	return VG_DRAWING_STUB_drawImage(gc, sni_context, matrix, alpha, elapsed, color_matrix, errno);
 }
 
-#endif // (LLUI_GC_SUPPORTED_FORMATS > 2)
+#endif // (UI_GC_SUPPORTED_FORMATS > 2)
 
-#else // #if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#else // #if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 /*
  * The VEE port supports only one destination format: the display buffer format. All
@@ -498,7 +520,7 @@ BSP_DECLARE_WEAK_FCNT DRAWING_Status VG_DRAWING_drawImage_2(MICROUI_GraphicsCont
  * third party implementation (often on a GPU) should replace each weak function independently.
  */
 
-#endif // #if defined(LLUI_GC_SUPPORTED_FORMATS) && (LLUI_GC_SUPPORTED_FORMATS > 1)
+#endif // #if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 // -----------------------------------------------------------------------------
 // EOF

@@ -16,7 +16,7 @@ extern "C" {
  * @file
  * @brief Provides the logs of the CCO MicroVG.
  * @author MicroEJ Developer Team
- * @version 6.0.1
+ * @version 7.0.0
  */
 
 // -----------------------------------------------------------------------------

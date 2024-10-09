@@ -13,7 +13,7 @@
  * It only stores the very first gradient's color as current color.
  *
  * @author MicroEJ Developer Team
- * @version 6.0.1
+ * @version 7.0.0
  */
 
 #include "vg_configuration.h"
@@ -35,9 +35,8 @@
 
 // See the header file for the function documentation
 BSP_DECLARE_WEAK_FCNT jint LLVG_GRADIENT_IMPL_initializeGradient(jint *gradient, jint length, const jint *colors,
-                                                                 jint count,
-                                                                 jfloat *positions, jfloat xStart, jfloat yStart,
-                                                                 jfloat xEnd, jfloat yEnd) {
+                                                                 jint count, jfloat *positions, jfloat xStart,
+                                                                 jfloat yStart, jfloat xEnd, jfloat yEnd) {
 	(void)count;
 	(void)positions;
 	(void)xStart;

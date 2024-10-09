@@ -16,7 +16,7 @@ extern "C" {
  * the destination buffer format is the BufferedVectorImage format. When the drawing
  * cannot be performed for any reason, the stub implementation is used instead.
  * @author MicroEJ Developer Team
- * @version 6.0.1
+ * @version 7.0.0
  */
 
 #include "vg_configuration.h"

@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: basic implementation
  * of matrix APIs.
  * @author MicroEJ Developer Team
- * @version 6.0.1
+ * @version 7.0.0
  */
 
 // -----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ void LLVG_MATRIX_IMPL_identity(jfloat *matrix) {
 
 // See the header file for the function documentation
 void LLVG_MATRIX_IMPL_copy(jfloat *dest, const jfloat *src) {
-	(void)memcpy((void *)dest, (void *)src, sizeof(float) * LLVG_MATRIX_SIZE);
+	(void)memcpy((void *)dest, (void *)src, sizeof(float) * (size_t)LLVG_MATRIX_SIZE);
 }
 
 // See the header file for the function documentation
