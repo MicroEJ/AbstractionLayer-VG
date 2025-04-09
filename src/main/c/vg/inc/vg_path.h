@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2022-2024 MicroEJ Corp. All rights reserved.
+ * Copyright 2022-2025 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation of Path.
  * @author MicroEJ Developer Team
- * @version 7.0.0
+ * @version 7.0.1
  */
 
 #if !defined VG_PATH_H

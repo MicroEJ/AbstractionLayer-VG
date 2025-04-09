@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2024 MicroEJ Corp. All rights reserved.
+ * Copyright 2024-2025 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -15,7 +15,7 @@
  * library.
  *
  * @author MicroEJ Developer Team
- * @version 7.0.0
+ * @version 7.0.1
  * @see ui_drawing.c
  */
 
@@ -87,9 +87,18 @@ typedef struct {
 
 // See the header file for the function documentation
 jint UI_FONT_DRAWING_VG_stringWidth(jchar *chars, jint length, MICROUI_Font *font) {
+#if defined VG_FEATURE_FONT &&                                                              \
+	(defined VG_FEATURE_FONT_FREETYPE_VECTOR || defined VG_FEATURE_FONT_FREETYPE_BITMAP) && \
+	(VG_FEATURE_FONT == VG_FEATURE_FONT_FREETYPE_VECTOR || VG_FEATURE_FONT == VG_FEATURE_FONT_FREETYPE_BITMAP)
 	MICROUI_FontVG *vg_font = (MICROUI_FontVG *)font;
 	return (int)ceil(VG_FREETYPE_string_width(chars, length, vg_font->vg_font_handle, vg_font->vg_font_size,
 	                                          LLVG_FONT_DEFAULT_LETTER_SPACING));
+#else
+	(void)chars;
+	(void)length;
+	(void)font;
+	return 0;
+#endif
 }
 
 // See the header file for the function documentation

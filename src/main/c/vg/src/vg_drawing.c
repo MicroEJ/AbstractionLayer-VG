@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2023-2024 MicroEJ Corp. All rights reserved.
+ * Copyright 2023-2025 MicroEJ Corp. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be found with this software.
  */
 
@@ -15,7 +15,7 @@
  * library.
  *
  * @author MicroEJ Developer Team
- * @version 7.0.0
+ * @version 7.0.1
  * @see ui_drawing.c
  */
 
