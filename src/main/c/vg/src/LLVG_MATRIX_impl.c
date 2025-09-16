@@ -2,7 +2,7 @@
  * C
  *
  * Copyright 2021-2025 MicroEJ Corp. All rights reserved.
- * Use of this source code is governed by a BSD-style license that can be found with this software.
+ * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
 /**
@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: basic implementation
  * of matrix APIs.
  * @author MicroEJ Developer Team
- * @version 7.0.1
+ * @version 7.0.2
  */
 
 // -----------------------------------------------------------------------------

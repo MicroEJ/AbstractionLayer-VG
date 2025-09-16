@@ -2,7 +2,7 @@
  * C
  *
  * Copyright 2020-2025 MicroEJ Corp. All rights reserved.
- * Use of this source code is governed by a BSD-style license that can be found with this software.
+ * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
 /**
@@ -114,7 +114,9 @@ extern "C" {
  * the application uses a path: the dynamic path are not created and the path
  * rendering is not performed.
  */
+#ifndef VG_FEATURE_PATH
 #define VG_FEATURE_PATH VG_FEATURE_PATH_SINGLE_ARRAY
+#endif
 
 /*
  * @brief Set this define to specify the implementation of the MicroVG's
@@ -127,7 +129,9 @@ extern "C" {
  * the application uses a gradient: the dynamic gradient are not created and the
  * gradient rendering is not performed.
  */
+#ifndef VG_FEATURE_GRADIENT
 #define VG_FEATURE_GRADIENT VG_FEATURE_GRADIENT_FULL
+#endif
 
 /*
  * @brief Set this define to specify the implementation of the MicroVG'
@@ -139,25 +143,27 @@ extern "C" {
  * When not set, a stub implementation is used. The application cannot load a font
  * (and by consequence cannot draw a text).
  */
+#ifndef VG_FEATURE_FONT
 #define VG_FEATURE_FONT VG_FEATURE_FONT_FREETYPE_VECTOR
+#endif
 
 /*
- * @brief Uncomment this define to enable the support of TTF font files'
+ * @brief Uncomment this define to enable the support of TTF font files.
  *
  */
-#define VG_FEATURE_FREETYPE_TTF
+//#define VG_FEATURE_FREETYPE_TTF
 
 /*
- * @brief Uncomment this define to enable the support of OTF font files'
+ * @brief Uncomment this define to enable the support of OTF font files.
  *
  */
-#define VG_FEATURE_FREETYPE_OTF
+//#define VG_FEATURE_FREETYPE_OTF
 
 /*
- * @brief Uncomment this define to enable the support of colored emoji'
+ * @brief Uncomment this define to enable the support of colored emoji.
  *
  */
-#define VG_FEATURE_FREETYPE_COLORED_EMOJI
+//#define VG_FEATURE_FREETYPE_COLORED_EMOJI
 
 /*
  * @brief Uncomment this define to enable the support of complex layout.
@@ -172,6 +178,7 @@ extern "C" {
  *       harfbuzz by an other complex layouter.
  */
 #define VG_FEATURE_FONT_COMPLEX_LAYOUT
+//#define VG_FEATURE_FONT_COMPLEX_LAYOUT
 
 /*
  * @brief Uncomment this define to allow to load external font files. When a font
@@ -183,7 +190,7 @@ extern "C" {
  *
  * When not set, only the resources compiled with the application are used.
  */
-#define VG_FEATURE_FONT_EXTERNAL
+//#define VG_FEATURE_FONT_EXTERNAL
 
 /*
  * @brief Configure this define to set the freetype heap size
@@ -191,7 +198,9 @@ extern "C" {
  * The freetype heap size depends on the font used by the application
  * @see MICROVG_MONITOR_HEAP in vg_helper.h to monitor the heap usage evolution.
  */
+#ifndef VG_FEATURE_FREETYPE_HEAP_SIZE
 #define VG_FEATURE_FREETYPE_HEAP_SIZE (80 * 1024)
+#endif
 
 /*
  * @brief Configure this define to set the complex layouter heap size
@@ -217,11 +226,10 @@ extern "C" {
 #if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 /*
- * @brief Comment the define VG_FEATURE_BUFFERED_VECTOR_IMAGE to remove the support
- * of BufferedVectorImage (even if the available number of supported GraphicsContext
- * formats is higher than 1).
+ * @brief Uncomment the define VG_FEATURE_BUFFERED_VECTOR_IMAGE to enable the support
+ * of BufferedVectorImage.
  */
-#define VG_FEATURE_BUFFERED_VECTOR_IMAGE
+//#define VG_FEATURE_BUFFERED_VECTOR_IMAGE
 
 /*
  * @brief The drawing functions to target the BufferedVectorImage have by default the

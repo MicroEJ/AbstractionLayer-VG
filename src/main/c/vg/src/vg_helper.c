@@ -2,7 +2,7 @@
  * C
  *
  * Copyright 2022-2025 MicroEJ Corp. All rights reserved.
- * Use of this source code is governed by a BSD-style license that can be found with this software.
+ * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
 /**
@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: helper to implement library natives
  * methods.
  * @author MicroEJ Developer Team
- * @version 7.0.1
+ * @version 7.0.2
  */
 
 #include "vg_configuration.h"
@@ -138,7 +138,7 @@ static hb_buffer_t *buf;
 // See the header file for the function documentation
 void VG_HELPER_initialize(void) {
 	// initializes the logger
-	VG_TRACE_group_id = LLTRACE_IMPL_declare_event_group("MicroVG", LOG_MICROVG_EVENTS);
+	VG_TRACE_group_id = LLTRACE_declare_event_group("MicroVG", LOG_MICROVG_EVENTS);
 
 	// configures the matrix used as identity matrix (immutable)
 	LLVG_MATRIX_IMPL_identity(g_identity_matrix);

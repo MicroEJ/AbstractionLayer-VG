@@ -2,7 +2,7 @@
  * C
  *
  * Copyright 2023-2025 MicroEJ Corp. All rights reserved.
- * Use of this source code is governed by a BSD-style license that can be found with this software.
+ * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
 #if !defined VG_TRACE_H
@@ -16,14 +16,30 @@ extern "C" {
  * @file
  * @brief Provides the logs of the CCO MicroVG.
  * @author MicroEJ Developer Team
- * @version 7.0.1
+ * @version 7.0.2
  */
 
 // -----------------------------------------------------------------------------
 // Includes
 // -----------------------------------------------------------------------------
 
-#include "LLTRACE_impl.h"
+/*
+ * @brief Includes right header file according the Architecture.
+ * - Architecture 7: include "LLTRACE_impl.h" (LLTRACE.h is not available)
+ * - Architecture 8: include "LLTRACE.h"
+ */
+#if !defined UI_LOG_LLTRACE
+#if !defined __has_include
+#error "Set manually UI_LOG_LLTRACE: 0 for MicroEJ Architecture 7.x or 1 for MicroEJ Architecture 8.x"
+#else
+#define UI_LOG_LLTRACE __has_include("LLTRACE.h")
+#endif // #if !defined __has_include
+#endif // #if !defined UI_LOG_LLTRACE
+#if UI_LOG_LLTRACE == (0u)
+#include <LLTRACE_impl.h>
+#else
+#include <LLTRACE.h>
+#endif
 
 // -----------------------------------------------------------------------------
 // Defines
@@ -75,14 +91,35 @@ extern "C" {
 #define CONCAT_DEFINES(p, s) CONCAT_STRINGS(p, s)
 
 /*
+ * @brief Compatibility of Architecture 7 with Architecture 8: use the prototypes
+ * of LLTRACE.h (Architecture 8).
+ */
+#if UI_LOG_LLTRACE == (0u)
+#define LLTRACE_declare_event_group LLTRACE_IMPL_declare_event_group
+#define LLTRACE_record_event_void LLTRACE_IMPL_record_event_void
+#define LLTRACE_record_event_u32 LLTRACE_IMPL_record_event_u32
+#define LLTRACE_record_event_u32x2 LLTRACE_IMPL_record_event_u32x2
+#define LLTRACE_record_event_u32x3 LLTRACE_IMPL_record_event_u32x3
+#define LLTRACE_record_event_u32x4 LLTRACE_IMPL_record_event_u32x4
+#define LLTRACE_record_event_u32x5 LLTRACE_IMPL_record_event_u32x5
+#define LLTRACE_record_event_u32x6 LLTRACE_IMPL_record_event_u32x6
+#define LLTRACE_record_event_u32x7 LLTRACE_IMPL_record_event_u32x7
+#define LLTRACE_record_event_u32x8 LLTRACE_IMPL_record_event_u32x8
+#define LLTRACE_record_event_u32x9 LLTRACE_IMPL_record_event_u32x9
+#define LLTRACE_record_event_u32x10 LLTRACE_IMPL_record_event_u32x10
+#define LLTRACE_record_event_end LLTRACE_IMPL_record_event_end
+#define LLTRACE_record_event_end_u32 LLTRACE_IMPL_record_event_end_u32
+#endif // if UI_LOG_LLTRACE == (0u)
+
+/*
  * @brief Macro to add an event and its type.
  */
-#define LOG_MICROVG_START(event, type) LLTRACE_IMPL_record_event_u32(VG_TRACE_group_id, event, type);
+#define LOG_MICROVG_START(event, type) LLTRACE_record_event_u32(VG_TRACE_group_id, event, type);
 
 /*
  * @brief Macro to notify the end of an event and its type.
  */
-#define LOG_MICROVG_END(event, type) LLTRACE_IMPL_record_event_end_u32(VG_TRACE_group_id, event, type);
+#define LOG_MICROVG_END(event, type) LLTRACE_record_event_end_u32(VG_TRACE_group_id, event, type);
 
 /* The following lines must be added to a SYSVIEW_MicroVG.txt file
  * in the <SYSTEMVIEW instalation dir>/Description folder

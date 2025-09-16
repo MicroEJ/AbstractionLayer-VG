@@ -2,14 +2,14 @@
  * C
  *
  * Copyright 2020-2025 MicroEJ Corp. All rights reserved.
- * Use of this source code is governed by a BSD-style license that can be found with this software.
+ * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
 /**
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 7.0.1
+ * @version 7.0.2
  */
 
 #include "vg_configuration.h"
@@ -207,8 +207,8 @@ jfloat VG_FREETYPE_string_width(jchar *text, jint length, jint face_handle, jflo
 		int previous_glyph_index = 0; // previous glyph index for kerning
 
 		int advance_x;
-		int previous_advance_x;
-		int previous_offset_x;
+		int previous_advance_x = 0;
+		int previous_offset_x = 0;
 		int advance_y;
 		int offset_x;
 		int offset_y;

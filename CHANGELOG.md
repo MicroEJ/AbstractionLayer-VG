@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.2] - 2025-09-16
+
+- Compatible with MicroEJ VG Pack 1.7.x.
+
+### Changed
+
+- Update the license file.
+
+### Fixed
+
+- Fix the usage of `LLTRACE_impl.h` with the Architecture 8.x.
+- Fix the default options in `vg_conguration.h`: some options are disabled by default. 
+
 ## [7.0.1] - 2025-04-09
 
 - Compatible with MicroEJ VG Pack 1.7.x.
@@ -238,4 +251,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 _Copyright 2021-2025 MicroEJ Corp. All rights reserved._\
-_Use of this source code is governed by a BSD-style license that can be found with this software._
+_MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms._

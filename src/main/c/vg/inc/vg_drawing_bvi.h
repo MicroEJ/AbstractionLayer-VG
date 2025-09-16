@@ -1,6 +1,6 @@
 /*
  * Copyright 2023-2025 MicroEJ Corp. All rights reserved.
- * Use of this source code is governed by a BSD-style license that can be found with this software.
+ * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
 #if !defined VG_DRAWING_BVI_H
@@ -16,7 +16,7 @@ extern "C" {
  * is the BufferedVectorImage format. When the drawing cannot be performed for any reason,
  * the stub implementation is used insted.
  * @author MicroEJ Developer Team
- * @version 7.0.1
+ * @version 7.0.2
  * @see ui_drawing_bvi.h
  */
 
