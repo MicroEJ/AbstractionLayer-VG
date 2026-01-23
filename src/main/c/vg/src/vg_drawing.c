@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2023-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2023-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -15,7 +15,7 @@
  * library.
  *
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  * @see ui_drawing.c
  */
 
@@ -251,15 +251,6 @@ static const VG_DRAWING_drawImage_t VG_DRAWER_drawImage[] = {
 };
 
 #endif /* if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1) */
-
-// --------------------------------------------------------------------------------
-// vg_drawing.h functions
-// --------------------------------------------------------------------------------
-
-// See the header file for the function documentation
-BSP_DECLARE_WEAK_FCNT void VG_DRAWING_initialize() {
-	// Nothing to do
-}
 
 // --------------------------------------------------------------------------------
 // vg_drawing.h functions

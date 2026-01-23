@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2021-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2021-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: basic implementation
  * of matrix APIs.
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 // -----------------------------------------------------------------------------

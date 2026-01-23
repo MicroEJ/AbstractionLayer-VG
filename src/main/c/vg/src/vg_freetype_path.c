@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2020-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over Freetype.
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 // -----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ jint VG_FREETYPE_draw_string(VG_FREETYPE_draw_glyph_t drawer, const jchar *text,
 
 		VG_HELPER_layout_configure(faceHandle, text, length);
 
-		while ((LLVG_SUCCESS == result) && (VG_HELPER_layout_load_glyph(&glyph_index, &glyph_advance_x,
+		while ((LLVG_SUCCESS == result) && (VG_HELPER_layout_load_glyph((uint32_t *)&glyph_index, &glyph_advance_x,
 		                                                                &glyph_advance_y, &glyph_offset_x,
 		                                                                &glyph_offset_y))) {
 			// At that point the current glyph has been loaded by Freetype

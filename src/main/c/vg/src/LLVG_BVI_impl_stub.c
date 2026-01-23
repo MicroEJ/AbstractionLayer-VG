@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2023-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2023-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -10,12 +10,12 @@
  * @brief MicroVG library low level API: stubbed implementation of LLVG_BVI_impl.h.
  *
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 #include "vg_configuration.h"
 
-#ifndef VG_FEATURE_BUFFERED_VECTOR_IMAGE
+#if defined VG_FEATURE_BUFFERED_VECTOR_IMAGE && (VG_FEATURE_BUFFERED_VECTOR_IMAGE != 1)
 
 // -----------------------------------------------------------------------------
 // Includes

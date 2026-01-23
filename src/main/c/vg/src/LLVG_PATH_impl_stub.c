@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2022-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2022-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -11,7 +11,7 @@
  * and LLVG_PATH_PAINTER_impl.h.
  *
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 #include "vg_configuration.h"

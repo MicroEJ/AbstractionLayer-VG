@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0] - 2026-01-23
+
+- Compatible with MicroEJ VG Pack 1.8.x.
+
+### Added
+
+- Add the implementation of the MicroVG native function `LLVG_IMPL_initialize()`; the C Module _GPU_ cannot implement this function anymore.
+- Add a stub implementation of `LLUI_DISPLAY_waitAsynchronousDrawingEnd()` to keep a backward compatibility with UI Packs [14.4.0-14.5.1].
+
+### Changed
+
+- Make this module compatible with MicroUI module 14.4.0.
+- Improve traces of drawing functions.
+- Change the type of the paremeter `glyph_idx` in the function `VG_HELPER_layout_load_glyph()`. 
+- Change the options configuration to follow the general rule of `vg_conguration.h`: default values are `0` (means "disabled"):
+	* `VG_FEATURE_FREETYPE_TTF`
+	* `VG_FEATURE_FREETYPE_OTF`
+	* `VG_FEATURE_FREETYPE_COLORED_EMOJI`
+	* `VG_FEATURE_FONT_COMPLEX_LAYOUT`
+	* `VG_FEATURE_FONT_EXTERNAL`
+	* `VG_FEATURE_BUFFERED_VECTOR_IMAGE`
+- Align font closing like other UI elements.
+
+### Removed
+
+- Remove the function `VG_HELPER_initialize()` (replaced by implementation of the function `LLVG_IMPL_initialize()`).
+- Remove the weak implementation of the function `VG_DRAWING_initialize()`: the C Module _GPU_ must initialize its components.
+- Remove the traces "image" (moved in MicroVG library).
+
 ## [7.0.2] - 2025-09-16
 
 - Compatible with MicroEJ VG Pack 1.7.x.
@@ -108,9 +137,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `MICROVG_HELPER_check_matrix` becomes `VG_HELPER_check_matrix`.
     - `MICROVG_HELPER_apply_alpha` becomes `VG_HELPER_apply_alpha`.
 - Change the signature of all drawing functions: remove the parameters `x` and `y` (not backward compatible).
-- Change the behavior of `VG_HELPER_initialize()`: it initializes the CCO according to the configuration of `vg_configuration.h`.
+- Change the behavior of `VG_HELPER_initialize()`: it initializes the C Module according to the configuration of `vg_configuration.h`.
 - Change the version of `MICROVG_CONFIGURATION_VERSION` (3).
-- Decrease the Freetype's heap default size (CCO Freetype 3.0.0 requires less memory).
+- Decrease the Freetype's heap default size (C Module Freetype 3.0.0 requires less memory).
 
 ### Fixed
 
@@ -136,8 +165,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the CCO compatible with VG pack 1.5.0 and higher.
-- Make the CCO compatible with the UI Pack 14.0.0 (CCO MicroUI 4.0.0).
+- Make the C Module compatible with VG pack 1.5.0 and higher.
+- Make the C Module compatible with the UI Pack 14.0.0 (C Module MicroUI 4.0.0).
 - Change the signature of all drawing functions: remove the parameters `x` and `y` (not backward compatible).
 
 ### Fixed
@@ -157,7 +186,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the CCO compatible with VG pack 1.4.2 and higher.
+- Make the C Module compatible with VG pack 1.4.2 and higher.
 
 ### Fixed
 
@@ -170,7 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the CCO compatible with VG pack 1.4.0 and higher.
+- Make the C Module compatible with VG pack 1.4.0 and higher.
 
 ### Fixed
 
@@ -191,8 +220,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the CCO compatible with VG pack 1.3.0 and higher.
-- CCO MicroVG now depends on CCO MicroUI (to manage the support of multiple Graphics Context output formats).
+- Make the C Module compatible with VG pack 1.3.0 and higher.
+- C Module MicroVG now depends on C Module MicroUI (to manage the support of multiple Graphics Context output formats).
 
 ### Fixed
 
@@ -215,7 +244,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the CCO compatible with VG pack 1.2.0 and higher.
+- Make the C Module compatible with VG pack 1.2.0 and higher.
 - Prevent a copy in a temp matrix when calling `postXXX` functions.
 
 ### Fixed
@@ -236,7 +265,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the CCO compatible with VG pack 1.1.0 and higher.
+- Make the C Module compatible with VG pack 1.1.0 and higher.
 - Manage the closed fonts.
 - Use mej_log.h global log library for console logs.
 
@@ -245,10 +274,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- CCO creation.
+- C Module creation.
 - Initial revision based on `com.microej.clibrary.llimpl#vector-font#1.0.0`.
 - Add UTF16 characters parsing in `LLVG_FONT_IMPL_string_width()`.
 
 ---
-_Copyright 2021-2025 MicroEJ Corp. All rights reserved._\
+_Copyright 2021-2026 MicroEJ Corp. All rights reserved._\
 _MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms._

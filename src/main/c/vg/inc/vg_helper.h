@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2020-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: helper to implement library natives
  * methods.
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 #if !defined VG_HELPER_H
@@ -75,17 +75,32 @@ extern "C" {
 #define JFLOAT_TO_UINT32_t(f) (*(uint32_t *)&(f))
 #define UINT32_t_TO_JFLOAT(i) (*(float *)&(i))
 
+/**
+ * @brief Registers the description of a SNI close function.
+ */
+#define REGISTERDESC(desc, buf, buf_len) if ((buf_len) >= sizeof(desc)) { (void)memcpy((buf), (desc), sizeof(desc)); }
+
+// --------------------------------------------------------------------------------
+// UI Pack > 14.5.1 function
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Waits until the end of current asynchronous drawing.
+ *
+ * To avoid potential side effects from the release of objects (images, fonts) retained by
+ * a feature during the killing of that feature, ensure that no third-party components
+ * (e.g., GPU) are using these objects at the time of the kill.
+ *
+ * UI packs with versions higher than 14.5.1 provide the blocking API `LLUI_DISPLAY_waitAsynchronousDrawingEnd()`.
+ * This API is stubbed on the VG Pack for backward compatibility issues between VG Pack
+ * 1.8.0 and UI Packs [14.4.0, 14.5.1]. However, it is highly recommended to use a UI Pack
+ * version greater than 14.5.1.
+ */
+void LLUI_DISPLAY_waitAsynchronousDrawingEnd(void);
+
 // -----------------------------------------------------------------------------
 // API
 // -----------------------------------------------------------------------------
-
-/*
- * @brief Initializes the MicroVG CCO according to the options set in vg_configuration.h
- *
- * This function must be explicitly called in the implementation of LLVG_IMPL_initialize()
- * (which is GPU dependant).
- */
-void VG_HELPER_initialize(void);
 
 /**
  * @brief Gets the UTF character from a text buffer at the given offset and updates
@@ -129,7 +144,7 @@ void VG_HELPER_layout_configure(int faceHandle, const unsigned short *text, int 
  *
  * @return true if a glyph is available otherwise false.
  */
-bool VG_HELPER_layout_load_glyph(int *glyph_idx, int *x_advance, int *y_advance, int *x_offset, int *y_offset);
+bool VG_HELPER_layout_load_glyph(uint32_t *glyph_idx, int *x_advance, int *y_advance, int *x_offset, int *y_offset);
 
 /*
  * @brief Checks if the matrix is null. In that case, returns an identity matrix.

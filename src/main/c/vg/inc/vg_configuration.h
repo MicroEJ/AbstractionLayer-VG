@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2020-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -12,30 +12,27 @@
  * @author MicroEJ Developer Team
  */
 
-#if !defined VG_CONFIGURATION_H
+#ifndef VG_CONFIGURATION_H
 #define VG_CONFIGURATION_H
 
 #if defined __cplusplus
 extern "C" {
 #endif
 
-#error \
-	"This header must be customized with platform specific configuration. Remove this #error when done. This file is not modified when a new version of the CCO is installed."
-
-/**
- * @brief Compatibility sanity check value.
- * This define value is checked in the implementation to validate that the version of this configuration
- * is compatible with the implementation.
- *
- * This value must not be changed by the user of the CCO.
- * This value must be incremented by the implementor of the CCO when a configuration define is added, deleted or
- * modified.
- */
-#define MICROVG_CONFIGURATION_VERSION (4)
-
 // -----------------------------------------------------------------------------
 // Includes
 // -----------------------------------------------------------------------------
+
+// Include VEE Port User configuration file
+// (already included in ui_configuration.h of UI Pack 14.5.0 and higher)
+#if defined __has_include
+	#if __has_include("veeport_configuration.h")
+		#include "veeport_configuration.h"
+	#endif // __has_include("veeport_configuration.h")
+#else
+// Ensure 'veeport_configuration.h' exists in your project for custom configurations.
+	#include "veeport_configuration.h"
+#endif // defined __has_include
 
 #include "ui_configuration.h"
 
@@ -100,7 +97,7 @@ extern "C" {
 #define VG_FEATURE_FONT_FREETYPE_BITMAP (2)
 
 // -----------------------------------------------------------------------------
-// MicroVG's Features Implementation
+// MicroVG's Features Configuration
 // -----------------------------------------------------------------------------
 
 /*
@@ -147,26 +144,29 @@ extern "C" {
 #define VG_FEATURE_FONT VG_FEATURE_FONT_FREETYPE_VECTOR
 #endif
 
-/*
- * @brief Uncomment this define to enable the support of TTF font files.
- *
+/**
+ * @brief Set this define to 1 to enable the support of TTF font files (disabled by default).
  */
-//#define VG_FEATURE_FREETYPE_TTF
+#ifndef VG_FEATURE_FREETYPE_TTF
+#define VG_FEATURE_FREETYPE_TTF (0)
+#endif
 
-/*
- * @brief Uncomment this define to enable the support of OTF font files.
- *
+/**
+ * @brief Set this define to 1 to enable the support of OTF font files (disabled by default).
  */
-//#define VG_FEATURE_FREETYPE_OTF
+#ifndef VG_FEATURE_FREETYPE_OTF
+#define VG_FEATURE_FREETYPE_OTF (0)
+#endif
 
 /*
  * @brief Uncomment this define to enable the support of colored emoji.
- *
  */
-//#define VG_FEATURE_FREETYPE_COLORED_EMOJI
+#ifndef VG_FEATURE_FREETYPE_COLORED_EMOJI
+#define VG_FEATURE_FREETYPE_COLORED_EMOJI (0)
+#endif
 
 /*
- * @brief Uncomment this define to enable the support of complex layout.
+ * @brief Set this define to 1 to enable the support of complex layout (disabled by default).
  *
  * When set, the complex layout feature is disabled by default (the Freetype layout
  * manager is used). See functions MICROVG_HELPER_set_complex_layout() and
@@ -177,23 +177,27 @@ extern "C" {
  *       is not needed. This implementation has been chosen to ease the replacement of
  *       harfbuzz by an other complex layouter.
  */
-#define VG_FEATURE_FONT_COMPLEX_LAYOUT
-//#define VG_FEATURE_FONT_COMPLEX_LAYOUT
+#ifndef VG_FEATURE_FONT_COMPLEX_LAYOUT
+#define VG_FEATURE_FONT_COMPLEX_LAYOUT (0)
+#endif
 
 /*
- * @brief Uncomment this define to allow to load external font files. When a font
- * file is not available in the application classpath, the implementation tries to
+ * @brief Set this define to 1 to enable the support of external font files (disabled by default).
+ *
+ * When a font file is not available in the application classpath, the implementation tries to
  * load it from an external resource system.
  *
- * The Platform must embbed the module "External Resource" and the BSP must implement
+ * The VEE Port must embed the module "External Resource" and the BSP must implement
  * "LLEXT_RES_impl.h" header file.
  *
  * When not set, only the resources compiled with the application are used.
  */
-//#define VG_FEATURE_FONT_EXTERNAL
+#ifndef VG_FEATURE_FONT_EXTERNAL
+#define VG_FEATURE_FONT_EXTERNAL (0)
+#endif
 
 /*
- * @brief Configure this define to set the freetype heap size
+ * @brief Configure this define to set the freetype heap size.
  *
  * The freetype heap size depends on the font used by the application
  * @see MICROVG_MONITOR_HEAP in vg_helper.h to monitor the heap usage evolution.
@@ -203,9 +207,9 @@ extern "C" {
 #endif
 
 /*
- * @brief Configure this define to set the complex layouter heap size
+ * @brief Configure this define to set the complex layouter heap size.
  *
- *@see VG_FEATURE_FONT_COMPLEX_LAYOUT
+ * @see VG_FEATURE_FONT_COMPLEX_LAYOUT
  *
  * The complex layouter heap size depends on the font used by the application
  * @see MICROVG_MONITOR_HEAP in vg_helper.h to monitor the heap usage evolution.
@@ -214,22 +218,18 @@ extern "C" {
 #define VG_FEATURE_FONT_COMPLEX_LAYOUT_HEAP_SIZE (80 * 1024)
 #endif
 
-/*
- * @brief Set this define to enable the support of MicroVG BufferedVectorImage.
- * This feature requires the available number of supported GraphicsContext formats
- * is higher than 1.
- *
- * Comment the define VG_FEATURE_BUFFERED_VECTOR_IMAGE to remove the support of
- * BufferedVectorImage (even if the available number of supported GraphicsContext
- * formats is higher than 1).
- */
 #if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
 /*
- * @brief Uncomment the define VG_FEATURE_BUFFERED_VECTOR_IMAGE to enable the support
- * of BufferedVectorImage.
+ * @brief Set this define to 1 to enable the support of MicroVG BufferedVectorImage
+ * (disabled by default).
+ *
+ * This feature requires the available number of supported GraphicsContext formats
+ * is higher than 1.
  */
-//#define VG_FEATURE_BUFFERED_VECTOR_IMAGE
+#ifndef VG_FEATURE_BUFFERED_VECTOR_IMAGE
+#define VG_FEATURE_BUFFERED_VECTOR_IMAGE (0)
+#endif
 
 /*
  * @brief The drawing functions to target the BufferedVectorImage have by default the

@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2023-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2023-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -10,7 +10,7 @@
  * @brief This file implements all MicroVG drawing native functions.
  * @see LLVG_PAINTER_impl.h file comment
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 // -----------------------------------------------------------------------------
@@ -32,16 +32,6 @@
 #include "vg_trace.h"
 
 // -----------------------------------------------------------------------------
-// Macros and Defines
-// -----------------------------------------------------------------------------
-
-/*
- * @brief Macro to add a DRAWING event and its type.
- */
-#define LOG_MICROVG_DRAWING_START(fn) LOG_MICROVG_START(LOG_MICROVG_DRAWING_ID, CONCAT_DEFINES(LOG_MICROVG_DRAW_, fn))
-#define LOG_MICROVG_DRAWING_END(fn) LOG_MICROVG_END(LOG_MICROVG_DRAWING_ID, CONCAT_DEFINES(LOG_MICROVG_DRAW_, fn))
-
-// -----------------------------------------------------------------------------
 // LLVG_PAINTER_impl.h functions
 // -----------------------------------------------------------------------------
 
@@ -49,12 +39,12 @@
 jint LLVG_PAINTER_IMPL_drawPath(MICROUI_GraphicsContext *gc, jbyte *pathData, jint x, jint y, jfloat *matrix,
                                 jint fillRule, jint blend, jint color) {
 	if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & LLVG_PAINTER_IMPL_drawPath)) {
-		LOG_MICROVG_DRAWING_START(path);
+		VG_TRACE_DRAW_START(drawPathColor, gc, x, y);
 		jfloat translated_matrix[LLVG_MATRIX_SIZE];
 		VG_HELPER_prepare_matrix(translated_matrix, x, y, matrix);
 		DRAWING_Status status = VG_DRAWING_drawPath(gc, pathData, translated_matrix, fillRule, blend, color);
 		LLUI_DISPLAY_setDrawingStatus(status);
-		LOG_MICROVG_DRAWING_END(path);
+		VG_TRACE_DRAW_END(drawPathColor, status);
 	}
 	return LLVG_SUCCESS;
 }
@@ -63,13 +53,13 @@ jint LLVG_PAINTER_IMPL_drawPath(MICROUI_GraphicsContext *gc, jbyte *pathData, ji
 jint LLVG_PAINTER_IMPL_drawGradient(MICROUI_GraphicsContext *gc, jbyte *pathData, jint x, jint y, jfloat *matrix,
                                     jint fillRule, jint alpha, jint blend, jint *gradientData, jfloat *gradientMatrix) {
 	if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & LLVG_PAINTER_IMPL_drawGradient)) {
-		LOG_MICROVG_DRAWING_START(pathGradient);
+		VG_TRACE_DRAW_START(drawPathGradient, gc, x, y);
 		jfloat translated_matrix[LLVG_MATRIX_SIZE];
 		VG_HELPER_prepare_matrix(translated_matrix, x, y, matrix);
 		DRAWING_Status status = VG_DRAWING_drawGradient(gc, pathData, translated_matrix, fillRule, alpha, blend,
 		                                                gradientData, gradientMatrix);
 		LLUI_DISPLAY_setDrawingStatus(status);
-		LOG_MICROVG_DRAWING_END(pathGradient);
+		VG_TRACE_DRAW_END(drawPathGradient, status);
 	}
 	return LLVG_SUCCESS;
 }
@@ -78,20 +68,27 @@ jint LLVG_PAINTER_IMPL_drawGradient(MICROUI_GraphicsContext *gc, jbyte *pathData
 jint LLVG_PAINTER_IMPL_drawString(MICROUI_GraphicsContext *gc, jchar *text, jint faceHandle, jfloat size, jfloat x,
                                   jfloat y, jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing) {
 	jint ret;
-	if (LLVG_FONT_UNLOADED == faceHandle) {
-		ret = (jint)LLVG_RESOURCE_CLOSED;
-	} else {
-		if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & (LLVG_PAINTER_IMPL_drawString))) {
-			LOG_MICROVG_DRAWING_START(string);
+
+	if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & (LLVG_PAINTER_IMPL_drawString))) {
+		DRAWING_Status status;
+		int length = (int)SNI_getArrayLength(text);
+		VG_TRACE_DRAW_START(drawStringColor, gc, length, (jint)x, (jint)y);
+
+		if (LLVG_FONT_UNLOADED != faceHandle) {
 			jfloat translated_matrix[LLVG_MATRIX_SIZE];
 			VG_HELPER_prepare_matrix(translated_matrix, x, y, matrix);
-			int length = (int)SNI_getArrayLength(text);
-			LLUI_DISPLAY_setDrawingStatus(VG_DRAWING_drawString(gc, text, length, faceHandle, size, translated_matrix,
-			                                                    alpha, blend, letterSpacing));
-			LOG_MICROVG_DRAWING_END(string);
+			status = VG_DRAWING_drawString(gc, text, length, faceHandle, size, translated_matrix, alpha, blend,
+			                               letterSpacing);
+			ret = (jint)LLVG_SUCCESS;
+		} else {
+			status = DRAWING_DONE;
+			ret = (jint)LLVG_RESOURCE_CLOSED;
 		}
-		ret = (jint)LLVG_SUCCESS;
+
+		LLUI_DISPLAY_setDrawingStatus(status);
+		VG_TRACE_DRAW_END(drawStringColor, status);
 	}
+
 	return ret;
 }
 
@@ -101,20 +98,25 @@ jint LLVG_PAINTER_IMPL_drawStringGradient(MICROUI_GraphicsContext *gc, jchar *te
                                           jfloat letterSpacing, jint *gradientData, jfloat *gradientMatrix) {
 	jint ret;
 
-	if (LLVG_FONT_UNLOADED == faceHandle) {
-		ret = (jint)LLVG_RESOURCE_CLOSED;
-	} else {
-		if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & (LLVG_PAINTER_IMPL_drawStringGradient))) {
-			LOG_MICROVG_DRAWING_START(stringGradient);
+	if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & (LLVG_PAINTER_IMPL_drawStringGradient))) {
+		DRAWING_Status status;
+		int length = (int)SNI_getArrayLength(text);
+		VG_TRACE_DRAW_START(drawStringGradient, gc, length, (jint)x, (jint)y);
+
+		if (LLVG_FONT_UNLOADED != faceHandle) {
 			jfloat translated_matrix[LLVG_MATRIX_SIZE];
 			VG_HELPER_prepare_matrix(translated_matrix, x, y, matrix);
-			int length = (int)SNI_getArrayLength(text);
-			LLUI_DISPLAY_setDrawingStatus(VG_DRAWING_drawStringGradient(gc, text, length, faceHandle, size,
-			                                                            translated_matrix, alpha, blend, letterSpacing,
-			                                                            gradientData, gradientMatrix));
-			LOG_MICROVG_DRAWING_END(stringGradient);
+			status = VG_DRAWING_drawStringGradient(gc, text, length, faceHandle, size,
+			                                       translated_matrix, alpha, blend, letterSpacing, gradientData,
+			                                       gradientMatrix);
+			ret = (jint)LLVG_SUCCESS;
+		} else {
+			status = DRAWING_DONE;
+			ret = (jint)LLVG_RESOURCE_CLOSED;
 		}
-		ret = (jint)LLVG_SUCCESS;
+
+		LLUI_DISPLAY_setDrawingStatus(status);
+		VG_TRACE_DRAW_END(drawStringGradient, status);
 	}
 
 	return ret;
@@ -126,20 +128,24 @@ jint LLVG_PAINTER_IMPL_drawStringOnCircle(MICROUI_GraphicsContext *gc, jchar *te
                                           jfloat radius, jint direction) {
 	jint ret;
 
-	if (LLVG_FONT_UNLOADED == faceHandle) {
-		ret = (jint)LLVG_RESOURCE_CLOSED;
-	} else {
-		if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & (LLVG_PAINTER_IMPL_drawStringOnCircle))) {
-			LOG_MICROVG_DRAWING_START(stringOnCircle);
+	if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & (LLVG_PAINTER_IMPL_drawStringOnCircle))) {
+		DRAWING_Status status;
+		int length = (int)SNI_getArrayLength(text);
+		VG_TRACE_DRAW_START(drawStringOnCircleColor, gc, length, x, y, (uint32_t)radius, direction);
+
+		if (LLVG_FONT_UNLOADED != faceHandle) {
 			jfloat translated_matrix[LLVG_MATRIX_SIZE];
 			VG_HELPER_prepare_matrix(translated_matrix, x, y, matrix);
-			int length = (int)SNI_getArrayLength(text);
-			LLUI_DISPLAY_setDrawingStatus(VG_DRAWING_drawStringOnCircle(gc, text, length, faceHandle, size,
-			                                                            translated_matrix, alpha, blend, letterSpacing,
-			                                                            radius, direction));
-			LOG_MICROVG_DRAWING_END(stringOnCircle);
+			status = VG_DRAWING_drawStringOnCircle(gc, text, length, faceHandle, size,
+			                                       translated_matrix, alpha, blend, letterSpacing, radius, direction);
+			ret = (jint)LLVG_SUCCESS;
+		} else {
+			status = DRAWING_DONE;
+			ret = (jint)LLVG_RESOURCE_CLOSED;
 		}
-		ret = (jint)LLVG_SUCCESS;
+
+		LLUI_DISPLAY_setDrawingStatus(status);
+		VG_TRACE_DRAW_END(drawStringOnCircleColor, status);
 	}
 
 	return ret;
@@ -152,21 +158,25 @@ jint LLVG_PAINTER_IMPL_drawStringOnCircleGradient(MICROUI_GraphicsContext *gc, j
                                                   jint *gradientData, jfloat *gradientMatrix) {
 	jint ret;
 
-	if (LLVG_FONT_UNLOADED == faceHandle) {
-		ret = (jint)LLVG_RESOURCE_CLOSED;
-	} else {
-		if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & (LLVG_PAINTER_IMPL_drawStringOnCircleGradient))) {
-			LOG_MICROVG_DRAWING_START(stringOnCircleGradient);
+	if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & (LLVG_PAINTER_IMPL_drawStringOnCircleGradient))) {
+		DRAWING_Status status;
+		int length = (int)SNI_getArrayLength(text);
+		VG_TRACE_DRAW_START(drawStringOnCircleGradient, gc, length, x, y, (uint32_t)radius, direction);
+
+		if (LLVG_FONT_UNLOADED != faceHandle) {
 			jfloat translated_matrix[LLVG_MATRIX_SIZE];
 			VG_HELPER_prepare_matrix(translated_matrix, x, y, matrix);
-			int length = (int)SNI_getArrayLength(text);
-			LLUI_DISPLAY_setDrawingStatus(VG_DRAWING_drawStringOnCircleGradient(gc, text, length, faceHandle, size,
-			                                                                    translated_matrix, alpha, blend,
-			                                                                    letterSpacing, radius, direction,
-			                                                                    gradientData, gradientMatrix));
-			LOG_MICROVG_DRAWING_END(stringOnCircleGradient);
+			status = VG_DRAWING_drawStringOnCircleGradient(gc, text, length, faceHandle, size,
+			                                               translated_matrix, alpha, blend, letterSpacing, radius,
+			                                               direction, gradientData, gradientMatrix);
+			ret = (jint)LLVG_SUCCESS;
+		} else {
+			status = DRAWING_DONE;
+			ret = (jint)LLVG_RESOURCE_CLOSED;
 		}
-		ret = (jint)LLVG_SUCCESS;
+
+		LLUI_DISPLAY_setDrawingStatus(status);
+		VG_TRACE_DRAW_END(drawStringOnCircleGradient, status);
 	}
 
 	return ret;
@@ -179,12 +189,11 @@ jint LLVG_PAINTER_IMPL_drawImage(MICROUI_GraphicsContext *gc, MICROVG_Image *ima
 
 	if (LLUI_DISPLAY_requestDrawing(gc, (SNI_callback) & LLVG_PAINTER_IMPL_drawImage)) {
 		DRAWING_Status status;
-		LOG_MICROVG_DRAWING_START(image);
+		VG_TRACE_DRAW_START(drawImage, gc, VG_TRACE_IMAGE(image), x, y);
+
 		if (!VG_DRAWING_image_is_closed(image) && (alpha > (jint)0)) {
-			// cppcheck-suppress [misra-c2012-18.8] LLVG_MATRIX_SIZE is a fixed size
 			jfloat translated_matrix[LLVG_MATRIX_SIZE];
 			VG_HELPER_prepare_matrix(translated_matrix, x, y, matrix);
-
 			status = VG_DRAWING_drawImage(gc, image, translated_matrix, alpha, elapsed, color_matrix, &error);
 
 			/* FIXME LLVG_OUT_OF_MEMORY errors are not returned as they are reported with error flags.
@@ -197,7 +206,7 @@ jint LLVG_PAINTER_IMPL_drawImage(MICROUI_GraphicsContext *gc, MICROVG_Image *ima
 			status = DRAWING_DONE;
 		}
 		LLUI_DISPLAY_setDrawingStatus(status);
-		LOG_MICROVG_DRAWING_END(image);
+		VG_TRACE_DRAW_END(drawImage, status);
 	}
 	return error;
 }

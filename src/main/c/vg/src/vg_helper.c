@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2022-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2022-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: helper to implement library natives
  * methods.
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 #include "vg_configuration.h"
@@ -21,38 +21,17 @@
 
 /*
  * Sanity check between the expected version of the VG Pack used by the VEE Port
- * and the actual version of this file (MicroVG CCO's file).
+ * and the actual version of this file (MicroVG C Module's file).
  *
  * If an error is raised here, it means that a new version of the VG Pack has been
- * installed in the VEE Port or the MicroVG CCO has been updated without any change
+ * installed in the VEE Port or the MicroVG C Module has been updated without any change
  * in the VEE Port. In both cases, the versions must be coherent (see the Release
  * Notes: https://docs.microej.com/en/latest/VEEPortingGuide/vgReleaseNotes.html).
  */
 
 #if (defined(LLVG_MAJOR_VERSION) && (LLVG_MAJOR_VERSION != 1)) || (defined(LLVG_MINOR_VERSION) && \
-	(LLVG_MINOR_VERSION < 5))
-#error "This CCO is only compatible with VG Pack [1.5.0,2.0.0["
-#endif
-
-// -----------------------------------------------------------------------------
-// Configuration Sanity Check
-// -----------------------------------------------------------------------------
-
-/*
- * Sanity check between the expected version of the configuration and the actual
- * version of the configuration.
- *
- * If an error is raised here, it means that a new version of the CCO has been
- * installed and the configuration vg_configuration.h must be updated based
- * on the one provided by the new CCO version.
- */
-
-#if !defined MICROVG_CONFIGURATION_VERSION
-	#error "Undefined MICROVG_CONFIGURATION_VERSION, it must be defined in vg_configuration.h"
-#endif
-
-#if defined MICROVG_CONFIGURATION_VERSION && MICROVG_CONFIGURATION_VERSION != 4
-	#error "Version of the configuration file vg_configuration.h is not compatible with this implementation."
+	(LLVG_MINOR_VERSION < 8))
+#error "This C Module is only compatible with VG Pack [1.8.0,2.0.0["
 #endif
 
 // -----------------------------------------------------------------------------
@@ -64,6 +43,7 @@
 #include "vg_helper.h"
 #include "vg_trace.h"
 #include "vg_drawing.h"
+#include "bsp_util.h"
 
 #if defined VG_FEATURE_PATH
 #include "vg_path.h"
@@ -74,7 +54,7 @@
 #include "vg_freetype.h"
 #endif
 
-#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT
+#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
 #include "hb.h"
 #include "hb-ft.h"
 #endif
@@ -102,9 +82,9 @@
 // -----------------------------------------------------------------------------
 
 /*
- * vg_trace.h logs group identifier
+ * @brief Identifies the MicroVG group to trace an event.
  */
-int32_t VG_TRACE_group_id;
+int32_t LLVG_TRACE_group;
 
 // -----------------------------------------------------------------------------
 // Private Globals
@@ -122,7 +102,7 @@ static int current_offset;
 static FT_UInt previous_glyph_index; // previous glyph index for kerning
 #endif
 
-#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT
+#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
 // Harfbuzz layout variables
 static hb_glyph_info_t *glyph_info;
 static hb_glyph_position_t *glyph_pos;
@@ -135,10 +115,12 @@ static hb_buffer_t *buf;
 // LLVG_impl.h functions
 // -----------------------------------------------------------------------------
 
-// See the header file for the function documentation
-void VG_HELPER_initialize(void) {
-	// initializes the logger
-	VG_TRACE_group_id = LLTRACE_declare_event_group("MicroVG", LOG_MICROVG_EVENTS);
+/*
+ * @brief Initializes the MicroVG C Module according.
+ */
+void LLVG_IMPL_initialize(jint trace_group) {
+	// initializes the tracer
+	LLVG_TRACE_group = trace_group;
 
 	// configures the matrix used as identity matrix (immutable)
 	LLVG_MATRIX_IMPL_identity(g_identity_matrix);
@@ -159,6 +141,19 @@ void VG_HELPER_initialize(void) {
 	VG_FREETYPE_initialize();
 #endif
 }
+
+// --------------------------------------------------------------------------------
+// UI Pack > 14.5.1 function
+// --------------------------------------------------------------------------------
+
+// See the header file for the function documentation
+BSP_DECLARE_WEAK_FCNT void LLUI_DISPLAY_waitAsynchronousDrawingEnd(void) {
+	// cannot wait the end of drawing with UI packs [14.4.0-14.5.1]
+}
+
+// -----------------------------------------------------------------------------
+// vg_helper.h functions
+// -----------------------------------------------------------------------------
 
 // See the header file for the function documentation
 int VG_HELPER_get_utf(const unsigned short *textCharRam, int length, int *offset) {
@@ -206,7 +201,7 @@ void VG_HELPER_layout_configure(int faceHandle, const unsigned short *text, int 
 		current_offset = 0;
 		previous_glyph_index = 0;
 	} else {
-#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT
+#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
 		static hb_font_t *hb_font;
 		static jint current_faceHandle = 0;
 		// load font in Harfbuzz only when faceHandle changes
@@ -239,7 +234,7 @@ void VG_HELPER_layout_configure(int faceHandle, const unsigned short *text, int 
 
 #if defined VG_FEATURE_FONT
 // See the header file for the function documentation
-bool VG_HELPER_layout_load_glyph(int *glyph_idx, int *x_advance, int *y_advance, int *x_offset, int *y_offset) {
+bool VG_HELPER_layout_load_glyph(uint32_t *glyph_idx, int *x_advance, int *y_advance, int *x_offset, int *y_offset) {
 	// Initiate return value with default values
 	*glyph_idx = 0;
 	*x_advance = 0;
@@ -279,7 +274,7 @@ bool VG_HELPER_layout_load_glyph(int *glyph_idx, int *x_advance, int *y_advance,
 			ret = true;
 		}
 	} else {
-#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT
+#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
 		// Harfbuzz layout
 		if (((unsigned int)0) != glyph_count) {
 			*glyph_idx = glyph_info[current_glyph].codepoint;

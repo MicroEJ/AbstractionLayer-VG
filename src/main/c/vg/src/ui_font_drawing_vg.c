@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2024-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2024-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -15,7 +15,7 @@
  * library.
  *
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  * @see ui_drawing.c
  */
 

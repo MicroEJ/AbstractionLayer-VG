@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2023-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2023-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -10,7 +10,7 @@
  * @brief
  * @brief Implementation of all drawing functions of vg_drawing_stub.h.
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  * @see vg_drawing_stub.h
  */
 

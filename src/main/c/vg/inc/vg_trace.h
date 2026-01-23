@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2023-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2023-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -13,56 +13,39 @@ extern "C" {
 #endif
 
 /*
- * @file
- * @brief Provides the logs of the CCO MicroVG.
+ * @brief Provides elements that allow to trace some external events in the MicroVG trace
+ * group.
+ *
+ * The MicroVG trace group is identified by the global LLVG_TRACE_group.
+ *
+ * Notes:
+ * - The first event index is the event 10 (events [0,9] are reserved for MicroVG).
+ * - The number of events is 30 (fixed by MicroVG): [10,39].
+ *
+ * Example:
+ *
+ * 		#include "vg_trace.h"
+ * 		LLTRACE_record_event_u32(LLVG_TRACE_group, MY_EVENT_OFFSET, my_event_data);
+ *
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 // -----------------------------------------------------------------------------
 // Includes
 // -----------------------------------------------------------------------------
 
-/*
- * @brief Includes right header file according the Architecture.
- * - Architecture 7: include "LLTRACE_impl.h" (LLTRACE.h is not available)
- * - Architecture 8: include "LLTRACE.h"
- */
-#if !defined UI_LOG_LLTRACE
-#if !defined __has_include
-#error "Set manually UI_LOG_LLTRACE: 0 for MicroEJ Architecture 7.x or 1 for MicroEJ Architecture 8.x"
-#else
-#define UI_LOG_LLTRACE __has_include("LLTRACE.h")
-#endif // #if !defined __has_include
-#endif // #if !defined UI_LOG_LLTRACE
-#if UI_LOG_LLTRACE == (0u)
-#include <LLTRACE_impl.h>
-#else
-#include <LLTRACE.h>
-#endif
+// include "ui_log.h" for bakcward compatibility with UI Pack [14.4.0-14.5.1]
+#include "ui_log.h"
 
 // -----------------------------------------------------------------------------
 // Defines
 // -----------------------------------------------------------------------------
 
 /*
- * @brief Available number of events: IMAGE, FONT and DRAWING
- */
-#define LOG_MICROVG_EVENTS 3
-
-/*
  * Events identifiers
  */
-#define LOG_MICROVG_IMAGE_ID 0
 #define LOG_MICROVG_FONT_ID 1
-#define LOG_MICROVG_DRAWING_ID 2
-
-/*
- * @brief Types of Image events
- */
-#define LOG_MICROVG_IMAGE_load 0
-#define LOG_MICROVG_IMAGE_create 1
-#define LOG_MICROVG_IMAGE_close 2
 
 /*
  * @brief Types of Font events
@@ -74,15 +57,15 @@ extern "C" {
 #define LOG_MICROVG_FONT_stringHeight 4
 
 /*
- * @brief Types of Drawing events
+ *  @brief Identifies the traces used by LLVG_PAINTER_impl.c
  */
-#define LOG_MICROVG_DRAW_path 0
-#define LOG_MICROVG_DRAW_pathGradient 1
-#define LOG_MICROVG_DRAW_string 2
-#define LOG_MICROVG_DRAW_stringGradient 3
-#define LOG_MICROVG_DRAW_stringOnCircle 4
-#define LOG_MICROVG_DRAW_stringOnCircleGradient 5
-#define LOG_MICROVG_DRAW_image 6
+#define VG_TRACE_drawPathColor 10
+#define VG_TRACE_drawPathGradient 11
+#define VG_TRACE_drawStringColor 12
+#define VG_TRACE_drawStringGradient 13
+#define VG_TRACE_drawStringOnCircleColor 14
+#define VG_TRACE_drawStringOnCircleGradient 15
+#define VG_TRACE_drawImage 16
 
 /*
  * @brief Useful macros to concatenate easily some strings and defines.
@@ -91,71 +74,66 @@ extern "C" {
 #define CONCAT_DEFINES(p, s) CONCAT_STRINGS(p, s)
 
 /*
- * @brief Compatibility of Architecture 7 with Architecture 8: use the prototypes
- * of LLTRACE.h (Architecture 8).
+ * @brief Macro UI_TRACE_IMAGE is only available in UI Pack >= 14.5.2
  */
-#if UI_LOG_LLTRACE == (0u)
-#define LLTRACE_declare_event_group LLTRACE_IMPL_declare_event_group
-#define LLTRACE_record_event_void LLTRACE_IMPL_record_event_void
-#define LLTRACE_record_event_u32 LLTRACE_IMPL_record_event_u32
-#define LLTRACE_record_event_u32x2 LLTRACE_IMPL_record_event_u32x2
-#define LLTRACE_record_event_u32x3 LLTRACE_IMPL_record_event_u32x3
-#define LLTRACE_record_event_u32x4 LLTRACE_IMPL_record_event_u32x4
-#define LLTRACE_record_event_u32x5 LLTRACE_IMPL_record_event_u32x5
-#define LLTRACE_record_event_u32x6 LLTRACE_IMPL_record_event_u32x6
-#define LLTRACE_record_event_u32x7 LLTRACE_IMPL_record_event_u32x7
-#define LLTRACE_record_event_u32x8 LLTRACE_IMPL_record_event_u32x8
-#define LLTRACE_record_event_u32x9 LLTRACE_IMPL_record_event_u32x9
-#define LLTRACE_record_event_u32x10 LLTRACE_IMPL_record_event_u32x10
-#define LLTRACE_record_event_end LLTRACE_IMPL_record_event_end
-#define LLTRACE_record_event_end_u32 LLTRACE_IMPL_record_event_end_u32
-#endif // if UI_LOG_LLTRACE == (0u)
+#ifndef UI_TRACE_IMAGE
+#define UI_TRACE_IMAGE UI_LOG_BUFFER
+#endif
 
 /*
  * @brief Macro to add an event and its type.
  */
-#define LOG_MICROVG_START(event, type) LLTRACE_record_event_u32(VG_TRACE_group_id, event, type);
+#define LOG_MICROVG_START(event, type) LLTRACE_record_event_u32(LLVG_TRACE_group, event, type);
 
 /*
  * @brief Macro to notify the end of an event and its type.
  */
-#define LOG_MICROVG_END(event, type) LLTRACE_record_event_end_u32(VG_TRACE_group_id, event, type);
+#define LOG_MICROVG_END(event, type) LLTRACE_record_event_end_u32(LLVG_TRACE_group, event, type);
 
-/* The following lines must be added to a SYSVIEW_MicroVG.txt file
- * in the <SYSTEMVIEW instalation dir>/Description folder
- *
- * NamedType VGImage 0=LOAD_IMAGE
- * NamedType VGImage 1=CREATE_IMAGE
- * NamedType VGImage 2=CLOSE_IMAGE
- *
- * NamedType VGFont 0=LOAD_FONT
- * NamedType VGFont 1=FONT_BASELINE
- * NamedType VGFont 2=FONT_HEIGHT
- * NamedType VGFont 3=STRING_WIDTH
- * NamedType VGFont 4=STRING_HEIGHT
- *
- * NamedType VGDraw 0=DRAW_PATH
- * NamedType VGDraw 1=DRAW_PATH_GRADIENT
- * NamedType VGDraw 2=DRAW_STRING
- * NamedType VGDraw 3=DRAW_STRING_GRADIENT
- * NamedType VGDraw 4=DRAW_STRING_ON_CIRCLE
- * NamedType VGDraw 5=DRAW_STRING_ON_CIRCLE_GRADIENT
- * NamedType VGDraw 6=DRAW_IMAGE
- *
- * 0        VG_ImageEvent      (MicroVG) Execute image event %VGImage  | (MicroVG) Image event %VGImage done
- * 1        VG_FontEvent       (MicroVG) Execute font event %VGFont  | (MicroVG) Font event %VGFont done
- * 2        VG_DrawingEvent    (MicroVG) Execute drawing event %VGDraw  | (MicroVG) Drawing event %VGDraw done
- *
+/*
+ * @brief Macros to call the trace functions.
+ * Macro UI_TRACE_COUNT_ARGS is only available in UI Pack >= 14.5.2
  */
+#ifndef UI_TRACE_COUNT_ARGS
+#define UI_TRACE_COUNT_ARGS UI_LOG_COUNT_ARGS
+#endif
+#define VG_TRACE_FUNCTION(...) CONCAT(LLTRACE_record_event_u32x, UI_TRACE_COUNT_ARGS(__VA_ARGS__))
+#define VG_TRACE_OFFSET(fn) CONCAT(VG_TRACE_, fn)
+#define VG_TRACE_PARAMS(fn, ...) LLVG_TRACE_group, VG_TRACE_OFFSET(fn), __VA_ARGS__
+
+/*
+ * @brief Add the image's address as a trace
+ */
+#define VG_TRACE_IMAGE(img) ((uint32_t)((img)->data))
+
+/*
+ * @brief Starts a VG trace (at least one parameter is required)
+ */
+#define VG_TRACE_START(fn, ...) VG_TRACE_FUNCTION(__VA_ARGS__)(VG_TRACE_PARAMS(fn, __VA_ARGS__))
+
+/*
+ * @brief Ends a VG trace (one parameter is required)
+ */
+#define VG_TRACE_END(fn, v) LLTRACE_record_event_end_u32(VG_TRACE_PARAMS(fn, v))
+
+/*
+ * @brief Starts a VG trace that denotes a drawing (destination "gc" is required)
+ */
+#define VG_TRACE_DRAW_START(fn, gc, ...) VG_TRACE_START(fn, UI_TRACE_IMAGE(&gc->image), __VA_ARGS__)
+
+/*
+ * @brief Ends a VG trace that denotes a drawing
+ */
+#define VG_TRACE_DRAW_END VG_TRACE_END
 
 // -----------------------------------------------------------------------------
-// Extern symbols
+// Fields
 // -----------------------------------------------------------------------------
 
 /*
- * @brief External variable that contains the id for each trace group.
+ * @brief Identifies the MicroVG group to trace an event.
  */
-extern int32_t VG_TRACE_group_id;
+extern int32_t LLVG_TRACE_group;
 
 // -----------------------------------------------------------------------------
 // EOF

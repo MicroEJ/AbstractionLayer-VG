@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2020-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 #include "vg_configuration.h"
@@ -29,7 +29,7 @@
 #include <LLVG_impl.h>
 #include <LLVG_FONT_impl.h>
 
-#if defined(VG_FEATURE_FONT_EXTERNAL)
+#if defined VG_FEATURE_FONT_EXTERNAL && (VG_FEATURE_FONT_EXTERNAL == 1)
 #include <LLEXT_RES_impl.h>
 #include <freetype/internal/ftmemory.h>
 #endif
@@ -83,7 +83,12 @@ extern int32_t SNIX_get_resource(jchar *path, SNIX_resource *resource);
  * @brief Disposes Freetype font when the associated Java object VectorFont is
  * garbaged collected.
  */
-static void _dispose_registered_font(void *faceHandle);
+static void __dispose_registered_font(void *faceHandle);
+
+/*
+ * @brief Disposes Freetype font.
+ */
+static void __dispose_font(void *faceHandle);
 
 /*
  * @brief Opens a font that has been loaded into memory.
@@ -116,7 +121,7 @@ static FT_Error __load_internal_font(FT_Face *face, jchar *font_name);
  */
 static void __register_font_description(void *resource, char *buffer, uint32_t bufferLength);
 
-#if defined(VG_FEATURE_FONT_EXTERNAL)
+#if defined VG_FEATURE_FONT_EXTERNAL && (VG_FEATURE_FONT_EXTERNAL == 1)
 
 /*
  * @brief Opens a font that has not been compiled with the application.
@@ -203,8 +208,8 @@ jfloat VG_FREETYPE_string_width(jchar *text, jint length, jint face_handle, jflo
 		long unscaled_width = 0;
 
 		// Layout variables
-		int glyph_index;  // current glyph index
-		int previous_glyph_index = 0; // previous glyph index for kerning
+		FT_UInt glyph_index;  // current glyph index
+		FT_UInt previous_glyph_index = 0; // previous glyph index for kerning
 
 		int advance_x;
 		int previous_advance_x = 0;
@@ -270,7 +275,7 @@ jint LLVG_FONT_IMPL_load_font(jchar *font_name, jboolean complex_layout) {
 		// try to load an internal resource
 		FT_Error error = __load_internal_font(&face, font_name);
 
-#if defined(VG_FEATURE_FONT_EXTERNAL)
+#if defined VG_FEATURE_FONT_EXTERNAL && (VG_FEATURE_FONT_EXTERNAL == 1)
 		if (FT_ERR(Cannot_Open_Resource) == error) {
 			// try to load an external resource
 			error = __load_external_font(&face, font_name);
@@ -282,10 +287,10 @@ jint LLVG_FONT_IMPL_load_font(jchar *font_name, jboolean complex_layout) {
 			FT_Select_Charmap(face, ft_encoding_unicode);
 			MEJ_LOG_INFO_MICROVG("Freetype font loaded: %s\n", (const char *)font_name);
 
-			SNI_registerResource((void *)face, (SNI_closeFunction) & _dispose_registered_font,
+			SNI_registerResource((void *)face, (SNI_closeFunction) & __dispose_registered_font,
 			                     &__register_font_description);
 
-#if defined(VG_FEATURE_FONT_COMPLEX_LAYOUT)
+#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
 			if (JTRUE == complex_layout) {
 				face->face_flags |= FT_FACE_FLAG_COMPLEX_LAYOUT;
 			}
@@ -337,8 +342,8 @@ jfloat LLVG_FONT_IMPL_string_height(jchar *text, jint faceHandle, jfloat size) {
 			FT_Pos horiBearingYBottom = 0;
 
 			// Layout variables
-			int glyph_index;  // current glyph index
-			int previous_glyph_index = 0; // previous glyph index for kerning
+			FT_UInt glyph_index;  // current glyph index
+			FT_UInt previous_glyph_index = 0; // previous glyph index for kerning
 
 			int advance_x;
 			int advance_y;
@@ -409,7 +414,9 @@ jfloat LLVG_FONT_IMPL_get_height(jint faceHandle, jfloat size) {
 
 // See the header file for the function documentation
 void LLVG_FONT_IMPL_dispose(jint faceHandle) {
-	_dispose_registered_font((void *)faceHandle);
+	// unregister the resource since the VEE does not need to call it anymore
+	SNI_unregisterResource((void *)faceHandle, (SNI_closeFunction) & __dispose_registered_font);
+	__dispose_font((void *)faceHandle);
 }
 
 // See the header file for the function documentation
@@ -425,13 +432,10 @@ bool LLVG_FONT_IMPL_has_complex_layouter(void) {
 // Internal functions
 // -----------------------------------------------------------------------------
 
-static void _dispose_registered_font(void *faceHandle) {
+static void __dispose_font(void *faceHandle) {
 	FT_Face face = (FT_Face)faceHandle;
 
-	// unregister the resource since the VEE does not need to call it anymore
-	SNI_unregisterResource((void *)face, (SNI_closeFunction) & _dispose_registered_font);
-
-#if defined(VG_FEATURE_FONT_EXTERNAL)
+#if defined VG_FEATURE_FONT_EXTERNAL && (VG_FEATURE_FONT_EXTERNAL == 1)
 	// FT_Done_Face() sets the stream to NULL: have to save it to close the
 	// external resource
 	FT_Stream stream = face->stream;
@@ -439,13 +443,24 @@ static void _dispose_registered_font(void *faceHandle) {
 
 	FT_Done_Face(face);
 
-#if defined(VG_FEATURE_FONT_EXTERNAL)
+#if defined VG_FEATURE_FONT_EXTERNAL && (VG_FEATURE_FONT_EXTERNAL == 1)
 	// frees the stream when the font is external (Freetype doesn't recommend
 	// to read the flag FT_FACE_FLAG_EXTERNAL_STREAM)
 	if (&__close_external_resource == stream->close) {
 		ft_mem_free(library->memory, stream);
 	}
 #endif // VG_FEATURE_FONT_EXTERNAL
+}
+
+/*
+ * Only called when killing a KF feature (automatic SNI resource management): have
+ * to wait the end of GPU before closing the image.
+ */
+static void __dispose_registered_font(void *faceHandle) {
+	// ensure GPU is not working in our font...
+	LLUI_DISPLAY_waitAsynchronousDrawingEnd();
+	// ... and close it
+	__dispose_font(faceHandle);
 }
 
 static FT_Error __load_memory_font(FT_Face *face, void *data, int length) {
@@ -464,7 +479,7 @@ static FT_Error __load_internal_font(FT_Face *face, jchar *font_name) {
 	return error;
 }
 
-#if defined(VG_FEATURE_FONT_EXTERNAL)
+#if defined VG_FEATURE_FONT_EXTERNAL && (VG_FEATURE_FONT_EXTERNAL == 1)
 
 static FT_Error __load_external_font(FT_Face *face, jchar *font_name) {
 	FT_Error error;
@@ -533,10 +548,15 @@ static void __close_external_resource(FT_Stream stream) {
 
 static void __register_font_description(void *resource, char *buffer, uint32_t bufferLength) {
 	(void)resource;
-	const char descEF[] = "Vector Font";
-	if (bufferLength >= sizeof(descEF)) {
-		(void)memcpy(buffer, descEF, sizeof(descEF));
-	}
+	REGISTERDESC("VectorFont", buffer, bufferLength);
+}
+
+// -----------------------------------------------------------------------------
+// TestResource functions
+// -----------------------------------------------------------------------------
+
+jlong Java_com_microej_microvg_test_TestResource_getSNICloseFunctionForFont(void) {
+	return (jlong) & __dispose_registered_font;
 }
 
 // cppcheck-suppress [misra-c2012-3.2]
@@ -544,6 +564,7 @@ static void __register_font_description(void *resource, char *buffer, uint32_t b
     // defined VG_FEATURE_FONT && \
     // (defined VG_FEATURE_FONT_FREETYPE_VECTOR || defined VG_FEATURE_FONT_FREETYPE_BITMAP) && \
     // (VG_FEATURE_FONT == VG_FEATURE_FONT_FREETYPE_VECTOR || VG_FEATURE_FONT == VG_FEATURE_FONT_FREETYPE_BITMAP)
+
 // -----------------------------------------------------------------------------
 // EOF
 // -----------------------------------------------------------------------------

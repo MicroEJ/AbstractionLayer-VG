@@ -1,7 +1,7 @@
 /*
  * C
  *
- * Copyright 2020-2025 MicroEJ Corp. All rights reserved.
+ * Copyright 2020-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: stub implementation of LLVG_FONT_IMPL_xxx().
  * @author MicroEJ Developer Team
- * @version 7.0.2
+ * @version 8.0.0
  */
 
 #include "vg_configuration.h"
