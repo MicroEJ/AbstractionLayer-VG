@@ -214,7 +214,7 @@ extern "C" {
  * The complex layouter heap size depends on the font used by the application
  * @see MICROVG_MONITOR_HEAP in vg_helper.h to monitor the heap usage evolution.
  */
-#ifdef VG_FEATURE_FONT_COMPLEX_LAYOUT
+#if VG_FEATURE_FONT_COMPLEX_LAYOUT == 1
 #define VG_FEATURE_FONT_COMPLEX_LAYOUT_HEAP_SIZE (80 * 1024)
 #endif
 
@@ -239,7 +239,7 @@ extern "C" {
 #define UI_DRAWING_IDENTIFIER_BVI_FORMAT 1
 #endif
 
-#elif defined(VG_FEATURE_BUFFERED_VECTOR_IMAGE)
+#elif defined(VG_FEATURE_BUFFERED_VECTOR_IMAGE) && (VG_FEATURE_BUFFERED_VECTOR_IMAGE == 1)
 #error "The BufferedVectorImage feature requires the support of several Graphics Context formats".
 #endif // if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 

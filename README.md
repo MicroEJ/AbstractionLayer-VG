@@ -14,7 +14,7 @@ This compoment is MicroEJ VG Pack dependent: it is compatible with one or severa
 
 1. Add the following line to your `module.ivy`:
 
-    <dependency org="com.microej.clibrary.llimpl" name="microvg" rev="8.0.0"/>
+    <dependency org="com.microej.clibrary.llimpl" name="microvg" rev="8.0.1"/>
     
 2. Follow the **Usage** chapters of each component part (see VEE Porting Guide > Vector Graphics > C Module)
 

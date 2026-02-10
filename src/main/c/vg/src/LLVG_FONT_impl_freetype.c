@@ -9,9 +9,10 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 8.0.0
+ * @version 8.0.1
  */
 
+#include <assert.h>
 #include "vg_configuration.h"
 
 #if defined VG_FEATURE_FONT &&                                                              \
@@ -287,8 +288,9 @@ jint LLVG_FONT_IMPL_load_font(jchar *font_name, jboolean complex_layout) {
 			FT_Select_Charmap(face, ft_encoding_unicode);
 			MEJ_LOG_INFO_MICROVG("Freetype font loaded: %s\n", (const char *)font_name);
 
-			SNI_registerResource((void *)face, (SNI_closeFunction) & __dispose_registered_font,
-			                     &__register_font_description);
+			int32_t registered = SNI_registerResource((void *)face, (SNI_closeFunction) & __dispose_registered_font,
+			                                          &__register_font_description);
+			assert(SNI_OK == registered);
 
 #if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
 			if (JTRUE == complex_layout) {
@@ -415,13 +417,14 @@ jfloat LLVG_FONT_IMPL_get_height(jint faceHandle, jfloat size) {
 // See the header file for the function documentation
 void LLVG_FONT_IMPL_dispose(jint faceHandle) {
 	// unregister the resource since the VEE does not need to call it anymore
-	SNI_unregisterResource((void *)faceHandle, (SNI_closeFunction) & __dispose_registered_font);
+	int32_t unregistered = SNI_unregisterResource((void *)faceHandle, (SNI_closeFunction) & __dispose_registered_font);
+	assert(SNI_OK == unregistered);
 	__dispose_font((void *)faceHandle);
 }
 
 // See the header file for the function documentation
 bool LLVG_FONT_IMPL_has_complex_layouter(void) {
-#ifdef VG_FEATURE_FONT_COMPLEX_LAYOUT
+#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
 	return true;
 #else
 	return false;

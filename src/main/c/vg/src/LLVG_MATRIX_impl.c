@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: basic implementation
  * of matrix APIs.
  * @author MicroEJ Developer Team
- * @version 8.0.0
+ * @version 8.0.1
  */
 
 // -----------------------------------------------------------------------------

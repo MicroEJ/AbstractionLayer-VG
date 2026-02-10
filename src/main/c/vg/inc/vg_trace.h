@@ -28,7 +28,7 @@ extern "C" {
  * 		LLTRACE_record_event_u32(LLVG_TRACE_group, MY_EVENT_OFFSET, my_event_data);
  *
  * @author MicroEJ Developer Team
- * @version 8.0.0
+ * @version 8.0.1
  */
 
 // -----------------------------------------------------------------------------

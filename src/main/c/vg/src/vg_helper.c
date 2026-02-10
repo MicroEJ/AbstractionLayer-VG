@@ -10,7 +10,7 @@
  * @brief MicroEJ MicroVG library low level API: helper to implement library natives
  * methods.
  * @author MicroEJ Developer Team
- * @version 8.0.0
+ * @version 8.0.1
  */
 
 #include "vg_configuration.h"
@@ -71,7 +71,7 @@
 
 #define GET_NEXT_CHARACTER(t, l, o) ((o) >= (l) ? (unsigned short)0 : (t)[o])
 
-#ifdef VG_FEATURE_FONT_COMPLEX_LAYOUT
+#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
 #define IS_SIMPLE_LAYOUT (!(face->face_flags & FT_FACE_FLAG_COMPLEX_LAYOUT))
 #else
 #define IS_SIMPLE_LAYOUT true
@@ -115,9 +115,7 @@ static hb_buffer_t *buf;
 // LLVG_impl.h functions
 // -----------------------------------------------------------------------------
 
-/*
- * @brief Initializes the MicroVG C Module according.
- */
+// See the header file for the function documentation
 void LLVG_IMPL_initialize(jint trace_group) {
 	// initializes the tracer
 	LLVG_TRACE_group = trace_group;

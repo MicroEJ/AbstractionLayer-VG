@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over Freetype.
  * @author MicroEJ Developer Team
- * @version 8.0.0
+ * @version 8.0.1
  */
 
 // -----------------------------------------------------------------------------

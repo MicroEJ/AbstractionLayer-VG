@@ -10,7 +10,7 @@
  * @brief This file implements all MicroVG drawing native functions.
  * @see LLVG_PAINTER_impl.h file comment
  * @author MicroEJ Developer Team
- * @version 8.0.0
+ * @version 8.0.1
  */
 
 // -----------------------------------------------------------------------------
