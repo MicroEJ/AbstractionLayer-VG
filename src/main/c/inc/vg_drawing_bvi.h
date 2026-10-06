@@ -9,14 +9,14 @@
 extern "C" {
 #endif
 
-/*
+/**
  * @file
  * @brief Implementation of a set of vg_drawing.h drawing functions (library MicroVG).
  * These are implementations over a BufferedVectorImage and the destination buffer format
  * is the BufferedVectorImage format. When the drawing cannot be performed for any reason,
  * the stub implementation is used insted.
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  * @see ui_drawing_bvi.h
  */
 
@@ -36,7 +36,7 @@ extern "C" {
 // Defines
 // --------------------------------------------------------------------------------
 
-/*
+/**
  * @brief Redirects all vg_drawing.h functions to the BufferedVectorImage functions
  */
 #define VG_DRAWING_BVI_drawPath CONCAT(VG_DRAWING_drawPath_, UI_DRAWING_IDENTIFIER_BVI_FORMAT)

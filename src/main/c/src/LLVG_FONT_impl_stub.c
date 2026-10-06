@@ -9,7 +9,7 @@
  * @file
  * @brief MicroEJ MicroVG library low level API: stub implementation of LLVG_FONT_IMPL_xxx().
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 #include "vg_configuration.h"

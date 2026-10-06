@@ -3,6 +3,8 @@
  *
  * Copyright 2020-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ * Build: 7E4D1F7C
  */
 
 /**
@@ -10,7 +12,7 @@
  * @brief MicroEJ MicroVG library low level API: helper to implement library natives
  * methods.
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 #if !defined VG_HELPER_H
@@ -24,30 +26,46 @@ extern "C" {
 // Includes
 // -----------------------------------------------------------------------------
 
-// cppcheck-suppress [misra-c2012-21.6] required to use "printf"
-#include <stdio.h>
-
 #include <sni.h>
 
-#include "mej_log.h"
+#include "vg_configuration.h"
 
 // -----------------------------------------------------------------------------
 // Macros and Defines
 // -----------------------------------------------------------------------------
 
-#if defined MEJ_LOG_INFO_LEVEL && defined MEJ_LOG_MICROVG
-#define MEJ_LOG_INFO_MICROVG(fmt, ...) MEJ_LOG(INFO, MICROVG, fmt, ## __VA_ARGS__)
+/**
+ * @brief Logs an error. The format has no trailing line return.
+ *
+ * The errors are always compiled. The printer is VG_LOG_ERROR_PRINT() (see vg_configuration.h).
+ */
+#define VG_LOG_ERROR(fmt, ...) VG_LOG_ERROR_PRINT(fmt, ## __VA_ARGS__)
+
+/**
+ * @brief Logs an informative message. The format has no trailing line return.
+ *
+ * Compiled only when VG_LOG_INFO_ENABLED is 1. The printer is VG_LOG_INFO_PRINT()
+ * (see vg_configuration.h).
+ */
+#if defined VG_LOG_INFO_ENABLED && (VG_LOG_INFO_ENABLED == 1)
+#define VG_LOG_INFO(fmt, ...) VG_LOG_INFO_PRINT(fmt, ## __VA_ARGS__)
 #else
-#define MEJ_LOG_INFO_MICROVG(fmt, ...)
+#define VG_LOG_INFO(fmt, ...)
 #endif
 
-// Errors should always be printed
-#define MEJ_LOG_ERROR_MICROVG(fmt, ...) MEJ_LOG(ERROR, MICROVG, fmt, ## __VA_ARGS__)
+/**
+ * @brief Deprecated, use VG_LOG_ERROR(). Kept for the Abstraction Layers that build on this one.
+ */
+#define MEJ_LOG_ERROR_MICROVG(fmt, ...) VG_LOG_ERROR(fmt, ## __VA_ARGS__)
+
+/**
+ * @brief Deprecated, use VG_LOG_INFO(). Kept for the Abstraction Layers that build on this one.
+ */
+#define MEJ_LOG_INFO_MICROVG(fmt, ...) VG_LOG_INFO(fmt, ## __VA_ARGS__)
 
 /**
  * @brief Set this define to monitor freetype heap evolution.
- *        It needs MEJ_LOG_MICROVG  and MEJ_LOG_INFO_LEVEL defines
- *        to print the heap logs.
+ *        It needs VG_LOG_INFO_ENABLED to print the heap logs.
  */
 //#define MICROVG_MONITOR_HEAP
 
@@ -116,15 +134,18 @@ void LLUI_DISPLAY_waitAsynchronousDrawingEnd(void);
  *
  * @param[in] text: text buffer encoded in UTF16 where to read UTF character.
  * @param[in] length: lenght of the text buffer.
- * @param[in/out] offset: offset in the text buffer where to read UTF character. Updated
+ * @param[in,out] offset: offset in the text buffer where to read UTF character. Updated
  *    to the next character position.
  *
  * @return The decoded UTF character.
  */
 int VG_HELPER_get_utf(const unsigned short *text, int length, int *offset);
 
-/*
+/**
  * @brief Configures the font layouter with a font and a text
+ *
+ * Releases what an iteration left open, as VG_HELPER_layout_stop() does, so a caller that stops
+ * before the end of its own iteration costs the next caller nothing.
  *
  * @param[in] faceHandle: handle on font face.
  * @param[in] text: text buffer encoded in UTF16 where to read UTF character.
@@ -133,7 +154,19 @@ int VG_HELPER_get_utf(const unsigned short *text, int length, int *offset);
  */
 void VG_HELPER_layout_configure(int faceHandle, const unsigned short *text, int length);
 
-/*
+/**
+ * @brief Releases the font layouter's state built from a font face, when that face is about to be
+ * freed. Does nothing when the layouter holds no state for this face.
+ *
+ * Must be called before the face itself is freed: the state holds the face and reads through it for
+ * its whole life.
+ *
+ * @param[in] faceHandle: handle on the font face being freed.
+ *
+ */
+void VG_HELPER_layout_dispose(int faceHandle);
+
+/**
  * @brief Loads the next layouted glyph and gets index and positions.
  *
  * @param[out] glyph_idx: next glyph index.
@@ -146,20 +179,31 @@ void VG_HELPER_layout_configure(int faceHandle, const unsigned short *text, int 
  */
 bool VG_HELPER_layout_load_glyph(uint32_t *glyph_idx, int *x_advance, int *y_advance, int *x_offset, int *y_offset);
 
-/*
+/**
+ * @brief Releases what the layouter still holds for the current iteration. Does nothing when there
+ * is nothing to release, so a caller that may or may not have stopped early calls it either way,
+ * and calling it twice is safe.
+ *
+ * It does not reset the reading position, so the next iteration starts with
+ * VG_HELPER_layout_configure() as it always did.
+ *
+ */
+void VG_HELPER_layout_stop(void);
+
+/**
  * @brief Checks if the matrix is null. In that case, returns an identity matrix.
  * This allows to prevent to make some checks on the matrix in the algorithms.
  *
  * The identity matrix can be used several times by the same algorithm. The caller
  * must not modify it (read-only matrix).
  *
- * @param[in] the matrix to check
+ * @param[in] matrix the matrix to check
  *
  * @return the matrix or an identity matrix
  */
 const jfloat * VG_HELPER_check_matrix(const jfloat *matrix);
 
-/*
+/**
  * @brief Applies the global opacity on given color.
  *
  * @param[in] color: the 32-bit color.
@@ -169,7 +213,7 @@ const jfloat * VG_HELPER_check_matrix(const jfloat *matrix);
  */
 uint32_t VG_HELPER_apply_alpha(uint32_t color, uint32_t alpha);
 
-/*
+/**
  * @brief Converts a MicroVG matrix in another MicroVG matrix applying a translation.
  *
  * @param[out] dest the MicroVG matrix to set

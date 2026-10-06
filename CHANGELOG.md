@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Since 8.0.3
+
+Since the version **8.0.3**, refer to the [VG Pack's changelog](https://docs.microej.com/en/latest/VEEPortingGuide/vgChangeLog.html), section `C Module MicroVG`.
+
+## [8.0.3] - 2026-10-06
+
+- Compatible with MicroEJ VG Pack 1.8.x.
+
+### Changed
+
+- Align the README with the other MicroEJ Abstraction Layers.
+- Move the sources to `src/main/c/inc` and `src/main/c/src`: a VEE Port that uses this repository as a git submodule updates its include paths and its source list.
+
+## [8.0.2] - 2026-09-15
+
+- Compatible with MicroEJ VG Pack 1.8.x.
+
+### Fixed
+
+- Release the complex text layouter's state when the font face it was built from is closed.
+
 ## [8.0.1] - 2026-02-10
 
 - Compatible with MicroEJ VG Pack 1.8.x.
@@ -23,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add the implementation of the MicroVG native function `LLVG_IMPL_initialize()`; the C Module _GPU_ cannot implement this function anymore.
+- Add the implementation of the MicroVG native function `LLVG_IMPL_initialize()`; the _GPU_ Abstraction Layer cannot implement this function anymore.
 - Add a stub implementation of `LLUI_DISPLAY_waitAsynchronousDrawingEnd()` to keep a backward compatibility with UI Packs [14.4.0-14.5.1].
 
 ### Changed
@@ -43,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Remove the function `VG_HELPER_initialize()` (replaced by implementation of the function `LLVG_IMPL_initialize()`).
-- Remove the weak implementation of the function `VG_DRAWING_initialize()`: the C Module _GPU_ must initialize its components.
+- Remove the weak implementation of the function `VG_DRAWING_initialize()`: the _GPU_ Abstraction Layer must initialize its components.
 - Remove the traces "image" (moved in MicroVG library).
 
 ## [7.0.2] - 2025-09-16
@@ -149,9 +170,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `MICROVG_HELPER_check_matrix` becomes `VG_HELPER_check_matrix`.
     - `MICROVG_HELPER_apply_alpha` becomes `VG_HELPER_apply_alpha`.
 - Change the signature of all drawing functions: remove the parameters `x` and `y` (not backward compatible).
-- Change the behavior of `VG_HELPER_initialize()`: it initializes the C Module according to the configuration of `vg_configuration.h`.
+- Change the behavior of `VG_HELPER_initialize()`: it initializes the Abstraction Layer according to the configuration of `vg_configuration.h`.
 - Change the version of `MICROVG_CONFIGURATION_VERSION` (3).
-- Decrease the Freetype's heap default size (C Module Freetype 3.0.0 requires less memory).
+- Decrease the Freetype's heap default size (Freetype Abstraction Layer 3.0.0 requires less memory).
 
 ### Fixed
 
@@ -177,8 +198,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the C Module compatible with VG pack 1.5.0 and higher.
-- Make the C Module compatible with the UI Pack 14.0.0 (C Module MicroUI 4.0.0).
+- Make the Abstraction Layer compatible with VG pack 1.5.0 and higher.
+- Make the Abstraction Layer compatible with the UI Pack 14.0.0 (MicroUI Abstraction Layer 4.0.0).
 - Change the signature of all drawing functions: remove the parameters `x` and `y` (not backward compatible).
 
 ### Fixed
@@ -198,7 +219,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the C Module compatible with VG pack 1.4.2 and higher.
+- Make the Abstraction Layer compatible with VG pack 1.4.2 and higher.
 
 ### Fixed
 
@@ -211,7 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the C Module compatible with VG pack 1.4.0 and higher.
+- Make the Abstraction Layer compatible with VG pack 1.4.0 and higher.
 
 ### Fixed
 
@@ -232,8 +253,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the C Module compatible with VG pack 1.3.0 and higher.
-- C Module MicroVG now depends on C Module MicroUI (to manage the support of multiple Graphics Context output formats).
+- Make the Abstraction Layer compatible with VG pack 1.3.0 and higher.
+- MicroVG Abstraction Layer now depends on MicroUI Abstraction Layer (to manage the support of multiple Graphics Context output formats).
 
 ### Fixed
 
@@ -256,7 +277,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the C Module compatible with VG pack 1.2.0 and higher.
+- Make the Abstraction Layer compatible with VG pack 1.2.0 and higher.
 - Prevent a copy in a temp matrix when calling `postXXX` functions.
 
 ### Fixed
@@ -277,7 +298,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make the C Module compatible with VG pack 1.1.0 and higher.
+- Make the Abstraction Layer compatible with VG pack 1.1.0 and higher.
 - Manage the closed fonts.
 - Use mej_log.h global log library for console logs.
 
@@ -286,10 +307,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- C Module creation.
+- Abstraction Layer creation.
 - Initial revision based on `com.microej.clibrary.llimpl#vector-font#1.0.0`.
 - Add UTF16 characters parsing in `LLVG_FONT_IMPL_string_width()`.
 
 ---
 _Copyright 2021-2026 MicroEJ Corp. All rights reserved._\
-_MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms._
+_MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms._\
+_Build: 7E4D1F7C_

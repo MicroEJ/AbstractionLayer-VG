@@ -3,13 +3,15 @@
  *
  * Copyright 2020-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ * Build: 7E4D1F7C
  */
 
 /**
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over Freetype.
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 // -----------------------------------------------------------------------------
@@ -21,9 +23,12 @@
 #if defined VG_FEATURE_FONT && (VG_FEATURE_FONT == VG_FEATURE_FONT_FREETYPE_VECTOR)
 
 #include <math.h>
+#include <inttypes.h>
 
 #include <freetype/internal/ftobjs.h>
+#if defined VG_FEATURE_FREETYPE_COLORED_EMOJI && (VG_FEATURE_FREETYPE_COLORED_EMOJI == 1)
 #include <freetype/ftcolor.h>
+#endif // VG_FEATURE_FREETYPE_COLORED_EMOJI
 #include "ftvector/ftvector.h"
 
 #include <LLVG_FONT_impl.h>
@@ -36,11 +41,15 @@
 #include "vg_helper.h"
 #include "bsp_util.h"
 
+VG_LOG_DECLARE_MODULE()
+
 // -----------------------------------------------------------------------------
 // Macros and Defines
 // -----------------------------------------------------------------------------
 
+#if defined VG_FEATURE_FREETYPE_COLORED_EMOJI && (VG_FEATURE_FREETYPE_COLORED_EMOJI == 1)
 #define FT_COLOR_TO_INT(x) (*((int *)&(x)))
+#endif // VG_FEATURE_FREETYPE_COLORED_EMOJI
 
 #define DIRECTION_CLOCK_WISE 0
 
@@ -54,16 +63,6 @@ extern FT_Renderer renderer;
 // -----------------------------------------------------------------------------
 // Internal functions
 // -----------------------------------------------------------------------------
-
-/*
- * @brief Computes the scale to apply to the font.
- *
- * @param[in] size: the font size
- * @param[in] face: the face of the font
- */
-static inline float __get_scale(jfloat size, FT_Face face) {
-	return size / face->units_per_EM;
-}
 
 /*
  * @brief Sets renderer parameters.
@@ -90,65 +89,67 @@ static float __get_angle(float advance, float radius) {
 	return angle;
 }
 
+#if defined VG_FEATURE_FREETYPE_COLORED_EMOJI && (VG_FEATURE_FREETYPE_COLORED_EMOJI == 1)
+
 /**
- * @brief load and render the selected glyph. If the glyph is a multilayer glyph,
- * this function will retrieve the different layers glyphs with theirs colors and
- * update the renderer to draw the glyph with the correct color.
+ * @brief Renders the glyph the layout loaded. When the glyph has color layers, loads and renders
+ * each of them instead, in the color the palette gives it.
+ *
+ * A glyph without layers costs a single FT_Get_Color_Glyph_Layer() call: on a target that reads the
+ * font from slow external memory, each call reads the COLR table.
  *
  * @param[in] face: the face of the font.
- * @param[in] glyph: the glyph index.
+ * @param[in] glyph_index: the index of the glyph, already loaded by the layout.
+ * @param[in] palette: the palette of the face, NULL when the face has none.
+ * @param[in,out] drawer_data: the renderer parameters; its color is restored before returning.
  *
  * @return FT_ERR( Ok ) on a success, a different value otherwise.
  */
 static FT_Error __render_glyph(FT_Face face, FT_UInt glyph_index, FT_Color *palette,
                                FTVECTOR_draw_glyph_data_t *drawer_data) {
-	FT_Error error = FT_ERR(Ok);
+	FT_Error error;
 
-	uint32_t default_color = drawer_data->color;
-	FT_UInt layer_glyph_index;
-	FT_UInt layer_color_index;
+	FT_UInt layer_glyph_index = 0;
+	FT_UInt layer_color_index = 0;
 	FT_LayerIterator iterator;
 	iterator.p = NULL;
 
-	FT_Bool have_layers = palette && FT_Get_Color_Glyph_Layer(face, glyph_index, &layer_glyph_index, &layer_color_index,
-	                                                          &iterator);
+	if ((NULL == palette) ||
+	    (0U == FT_Get_Color_Glyph_Layer(face, glyph_index, &layer_glyph_index, &layer_color_index, &iterator))) {
+		// convert to an anti-aliased bitmap
+		error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+	} else {
+		uint32_t default_color = drawer_data->color;
+		bool has_next_layer;
 
-	do {
-		if (have_layers) {
+		do {
 			// Update renderer color with layer_color
 			if (layer_color_index != 0xFFFF) {
 				drawer_data->color = VG_FREETYPE_IMPL_convert_color(FT_COLOR_TO_INT(palette[layer_color_index]));
 			}
-		} else {
-			// Use main glyph_index as layer_glyph_index
-			layer_glyph_index = glyph_index;
-		}
 
-		if (layer_glyph_index != glyph_index) {
 			error = FT_Load_Glyph(face, layer_glyph_index, FT_LOAD_NO_SCALE);
-		}
+			if (FT_ERR(Ok) == error) {
+				// convert to an anti-aliased bitmap
+				error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+			} else {
+				VG_LOG_ERROR("Error while loading glyphid %d: 0x%x, refer to fterrdef.h", layer_glyph_index,
+				             error);
+			}
 
-		if (FT_ERR(Ok) == error) {
-			// convert to an anti-aliased bitmap
-			error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
-		} else {
-			MEJ_LOG_ERROR_MICROVG("Error while loading glyphid %d: 0x%x, refer to fterrdef.h\n", layer_glyph_index,
-			                      error);
-		}
-	}while ((layer_glyph_index != glyph_index) && (FT_ERR(Ok) == error) && (FT_ERR(Ok) != FT_Get_Color_Glyph_Layer(face,
-	                                                                                                               glyph_index,
-	                                                                                                               &
-	                                                                                                               layer_glyph_index,
-	                                                                                                               &
-	                                                                                                               layer_color_index,
-	                                                                                                               &
-	                                                                                                               iterator)));
+			has_next_layer = (FT_ERR(Ok) == error) &&
+			                 (0U != FT_Get_Color_Glyph_Layer(face, glyph_index, &layer_glyph_index,
+			                                                 &layer_color_index, &iterator));
+		} while (has_next_layer);
 
-	// Revert renderer color to original color in case it has been modified.
-	drawer_data->color = default_color;
+		// Revert renderer color to original color.
+		drawer_data->color = default_color;
+	}
 
 	return error;
 }
+
+#endif // VG_FEATURE_FREETYPE_COLORED_EMOJI
 
 // -----------------------------------------------------------------------------
 // vg_freetype.h painter functions
@@ -162,15 +163,17 @@ jint VG_FREETYPE_draw_string(VG_FREETYPE_draw_glyph_t drawer, const jchar *text,
 
 	if (0 < length) {
 		FT_Face face = (FT_Face)faceHandle;
+#if defined VG_FEATURE_FREETYPE_COLORED_EMOJI && (VG_FEATURE_FREETYPE_COLORED_EMOJI == 1)
 		FT_Color *palette;
 
 		// Select palette
 		if (0 != FT_Palette_Select(face, 0, &palette)) {
 			palette = NULL;
 		}
+#endif // VG_FEATURE_FREETYPE_COLORED_EMOJI
 
-		float scale = __get_scale(size, face);
-		float letterSpacingScaled = letterSpacing / scale;
+		float scale = VG_FREETYPE_get_scale(faceHandle, size);
+		float letterSpacingFontUnits = letterSpacing / scale;
 		float radiusScaled = radius / scale;
 		short baselineposition = face->ascender;
 
@@ -180,13 +183,13 @@ jint VG_FREETYPE_draw_string(VG_FREETYPE_draw_glyph_t drawer, const jchar *text,
 		LLVG_MATRIX_IMPL_scale(scaled_matrix, scale, scale);
 
 		float working_matrix[LLVG_MATRIX_SIZE];
-		LLVG_MATRIX_IMPL_copy(working_matrix, scaled_matrix); // TODO Is it necessary?
 
 		FTVECTOR_draw_glyph_data_t drawer_data;
 		drawer_data.drawer = drawer;
 		drawer_data.matrix = working_matrix;
 		drawer_data.color = color;
 		drawer_data.user_data = user_data;
+		drawer_data.destination_error = LLVG_SUCCESS;
 
 		// give drawing parameters to freetype
 		__set_renderer(&drawer_data);
@@ -196,9 +199,16 @@ jint VG_FREETYPE_draw_string(VG_FREETYPE_draw_glyph_t drawer, const jchar *text,
 		int glyph_advance_x;
 		int glyph_advance_y;
 		int glyph_offset_x;
-		int advance_x = 0;
+		float advance_x = 0.f;
 		int advance_y = 0;
-		int previous_glyph_index = 0; // previous glyph index for kerning
+
+		// The string starts on the leftmost ink of the whole string, not on the first glyph's:
+		// the two differ as soon as a later glyph reaches further left, and the measure is the
+		// width of that same box.
+		float span_left = 0.f;
+		if (VG_FREETYPE_string_span(text, length, faceHandle, letterSpacingFontUnits, &span_left, NULL)) {
+			advance_x = -span_left;
+		}
 
 		VG_HELPER_layout_configure(faceHandle, text, length);
 
@@ -209,27 +219,18 @@ jint VG_FREETYPE_draw_string(VG_FREETYPE_draw_glyph_t drawer, const jchar *text,
 
 			int charWidth = glyph_advance_x;
 
-			if (0 == previous_glyph_index) {
-				// first glyph: remove the first blank line
-				if (0 == face->glyph->metrics.width) {
-					advance_x -= charWidth;
-				} else {
-					advance_x -= face->glyph->metrics.horiBearingX;
-				}
-			}
-
 			// reset drawer's matrix
 			LLVG_MATRIX_IMPL_copy(working_matrix, scaled_matrix);
 
 			if (0.f == radius) {
-				LLVG_MATRIX_IMPL_translate(working_matrix, advance_x + glyph_offset_x,
-				                           baselineposition + advance_y + glyph_offset_y);
+				LLVG_MATRIX_IMPL_translate(working_matrix, advance_x + (float)glyph_offset_x,
+				                           (float)(baselineposition + advance_y + glyph_offset_y));
 			} else {
 				float sign = (DIRECTION_CLOCK_WISE != direction) ? -1.f : 1.f;
 
 				// Space characters joining bboxes at baseline
-				float angleDegrees = 90 + __get_angle(advance_x + glyph_offset_x,
-				                                      radiusScaled) + __get_angle(charWidth / 2, radiusScaled);
+				float angleDegrees = 90 + __get_angle(advance_x + (float)glyph_offset_x,
+				                                      radiusScaled) + __get_angle((float)(charWidth / 2), radiusScaled);
 
 				// Rotate to angle
 				LLVG_MATRIX_IMPL_rotate(working_matrix, sign * angleDegrees);
@@ -240,20 +241,30 @@ jint VG_FREETYPE_draw_string(VG_FREETYPE_draw_glyph_t drawer, const jchar *text,
 			}
 
 			// Draw the glyph
+#if defined VG_FEATURE_FREETYPE_COLORED_EMOJI && (VG_FEATURE_FREETYPE_COLORED_EMOJI == 1)
 			FT_Error error = __render_glyph(face, glyph_index, palette, &drawer_data);
+#else
+			// convert to an anti-aliased bitmap
+			FT_Error error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+#endif // VG_FEATURE_FREETYPE_COLORED_EMOJI
 			if (FT_ERR(Ok) != error) {
-				MEJ_LOG_ERROR_MICROVG("Error while rendering glyphid %d: 0x%x, refer to fterrdef.h\n", glyph_index,
-				                      error);
-				result = (FT_ERR(Out_Of_Memory) == error) ? LLVG_OUT_OF_MEMORY : LLVG_DATA_INVALID;
+				if (LLVG_SUCCESS != drawer_data.destination_error) {
+					// the drawing destination refused: FreeType only relayed its error
+					result = drawer_data.destination_error;
+					VG_LOG_ERROR("String cut at glyphid %d: the drawing destination refused (error %" PRId32 ")",
+					             glyph_index, result);
+				} else {
+					VG_LOG_ERROR("Error while rendering glyphid %d: 0x%x, refer to fterrdef.h", glyph_index,
+					             error);
+					result = (FT_ERR(Out_Of_Memory) == error) ? LLVG_OUT_OF_MEMORY : LLVG_DATA_INVALID;
+				}
 				continue;
 			}
 
 			// Compute advance to next glyph
-			advance_x += charWidth;
-			advance_x += (int)letterSpacingScaled;
+			advance_x += (float)charWidth;
+			advance_x += letterSpacingFontUnits;
 			advance_y += glyph_advance_y;
-
-			previous_glyph_index = glyph_index;
 		}
 	}
 

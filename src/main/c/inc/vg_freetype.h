@@ -3,13 +3,15 @@
  *
  * Copyright 2020-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ * Build: 7E4D1F7C
  */
 
 /**
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType.
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 #if !defined VG_FREETYPE_H
@@ -35,7 +37,7 @@ extern "C" {
 // Typedef
 // --------------------------------------------------------------------------------
 
-/*
+/**
  * @brief Function to draw a character element: a glyph. A glyph is a vectorial path.
  *
  * This function is called by VG_FREETYPE_draw_string(). Two implementations
@@ -85,15 +87,49 @@ typedef jint (* VG_FREETYPE_draw_glyph_t) (
 // API
 // --------------------------------------------------------------------------------
 
-/*
+/**
  * @brief Initializes the lowlevel font library.
  */
 void VG_FREETYPE_initialize(void);
 
-/*
+/**
+ * @brief Folds the ink of a string and returns its two extreme edges.
+ *
+ * Every glyph is placed at its own pen position, and a glyph that draws nothing contributes no
+ * edge at either end. The pen carries the letter spacing, so a string that draws no glyph has no
+ * span whatever the spacing is.
+ *
+ * Returns the two extreme edges of the ink; the caller decides what to do with them.
+ *
+ * A caller that passes NULL for the right edge asks for the left one alone. The fold then stops as
+ * soon as no remaining glyph can reach further left, so it reads a few glyphs instead of the whole
+ * string. It returns the same left edge as a full fold as long as no glyph is placed more than one
+ * EM to the left of its own pen position, which is the margin the stop keeps; a letter spacing
+ * below zero and an advance seen to be negative each disable the stop instead of narrowing that
+ * margin.
+ *
+ * The function leaves no iteration open, so a caller that iterates afterwards must call
+ * VG_HELPER_layout_configure() again.
+ *
+ * @param[in] text the array of characters to fold.
+ * @param[in] length the length of the array.
+ * @param[in] face_handle the font reference handle.
+ * @param[in] letter_spacing_font_units the extra letter spacing, in font units.
+ * @param[out] left the left edge of the ink, in font units; untouched when no glyph draws.
+ * @param[out] right the right edge of the ink, in font units; untouched when no glyph draws. NULL
+ *    asks for the left edge alone, which lets the fold stop before the end of the string.
+ *
+ * @return true when at least one glyph draws, false when none does.
+ */
+bool VG_FREETYPE_string_span(const jchar *text, jint length, jint face_handle, jfloat letter_spacing_font_units,
+                             jfloat *left, jfloat *right);
+
+/**
  * @brief Measures the width of a text for the specified font and size.
  *
- * The text is measured from first pixel of the first glyph to last pixel of the last glyph.
+ * The width is the union of the ink of every glyph, each at its own pen position: the leftmost
+ * pixel any glyph draws to the rightmost, whichever glyphs those are. A character that draws
+ * nothing contributes nothing, at either end.
  *
  * @param[in] text the array of characters to draw.
  * @param[in] length the length of the array
@@ -101,11 +137,23 @@ void VG_FREETYPE_initialize(void);
  * @param[in] size the height of the font in pixels.
  * @param[in] letter_spacing the extra letter spacing to use
  *
- * @return the width of the specified string, in pixels or a negative error code on error.
+ * @return the width of the specified string, in pixels, never negative.
  */
 jfloat VG_FREETYPE_string_width(jchar *text, jint length, jint face_handle, jfloat size, jfloat letter_spacing);
 
-/*
+/**
+ * @brief Computes the scale that converts font units to pixels at the given size.
+ *
+ * LLVG_FONT_IMPL_load_font() refuses a face whose EM size is 0, so the division is always defined.
+ *
+ * @param[in] face_handle the font reference handle.
+ * @param[in] size the height of the font in pixels.
+ *
+ * @return the size of one font unit, in pixels.
+ */
+jfloat VG_FREETYPE_get_scale(jint face_handle, jfloat size);
+
+/**
  * @brief Draws a string using the Freetype engine along a line or a circle, with a
  * color or a linear gradient. The implementation does not draw, it calls the
  * drawer function for each glyph: VG_FREETYPE_draw_glyph_t.

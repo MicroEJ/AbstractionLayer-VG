@@ -40,13 +40,13 @@ extern "C" {
 // MicroVG's Path Options
 // -----------------------------------------------------------------------------
 
-/*
+/**
  * @brief Value of "VG_FEATURE_PATH" to use only one array to store the path's
  * commands and the commands' parameters.
  */
 #define VG_FEATURE_PATH_SINGLE_ARRAY (1)
 
-/*
+/**
  * @brief Value of "VG_FEATURE_PATH" to use two arrays to store the path's data:
  * one for the commands and one for the commands' parameters.
  */
@@ -56,7 +56,7 @@ extern "C" {
 // MicroVG's LinearGradient Options
 // -----------------------------------------------------------------------------
 
-/*
+/**
  * @brief Value of "VG_FEATURE_GRADIENT" to use a full implementation of the
  * MicroVG's LinearGradient.
  *
@@ -65,7 +65,7 @@ extern "C" {
  */
 #define VG_FEATURE_GRADIENT_FULL (1)
 
-/*
+/**
  * @brief Value of "VG_FEATURE_GRADIENT" to use a reduced implementation of the
  * MicroVG's LinearGradient.
  *
@@ -78,7 +78,7 @@ extern "C" {
 // MicroVG's VectorFont Options
 // -----------------------------------------------------------------------------
 
-/*
+/**
  * @brief Value of "VG_FEATURE_FONT" to use FreeTYPE as implementation of the
  * MicroVG's VectorFont.
  *
@@ -87,7 +87,7 @@ extern "C" {
  */
 #define VG_FEATURE_FONT_FREETYPE_VECTOR (1)
 
-/*
+/**
  * @brief Value of "VG_FEATURE_FONT" to use FreeTYPE as implementation of the
  * MicroVG' VectorFont.
  *
@@ -100,7 +100,7 @@ extern "C" {
 // MicroVG's Features Configuration
 // -----------------------------------------------------------------------------
 
-/*
+/**
  * @brief Set this define to embed the implementation of the MicroVG's
  * Path (dynamic path creation and path rendering).
  *
@@ -115,7 +115,7 @@ extern "C" {
 #define VG_FEATURE_PATH VG_FEATURE_PATH_SINGLE_ARRAY
 #endif
 
-/*
+/**
  * @brief Set this define to specify the implementation of the MicroVG's
  * LinearGradient (dynamic gradient creation and drawings with gradient).
  *
@@ -130,7 +130,7 @@ extern "C" {
 #define VG_FEATURE_GRADIENT VG_FEATURE_GRADIENT_FULL
 #endif
 
-/*
+/**
  * @brief Set this define to specify the implementation of the MicroVG'
  * VectorFont (dynamic font loading and text rendering).
  *
@@ -158,14 +158,14 @@ extern "C" {
 #define VG_FEATURE_FREETYPE_OTF (0)
 #endif
 
-/*
- * @brief Uncomment this define to enable the support of colored emoji.
+/**
+ * @brief Set this define to 1 to enable the support of colored emoji (disabled by default).
  */
 #ifndef VG_FEATURE_FREETYPE_COLORED_EMOJI
 #define VG_FEATURE_FREETYPE_COLORED_EMOJI (0)
 #endif
 
-/*
+/**
  * @brief Set this define to 1 to enable the support of complex layout (disabled by default).
  *
  * When set, the complex layout feature is disabled by default (the Freetype layout
@@ -181,7 +181,7 @@ extern "C" {
 #define VG_FEATURE_FONT_COMPLEX_LAYOUT (0)
 #endif
 
-/*
+/**
  * @brief Set this define to 1 to enable the support of external font files (disabled by default).
  *
  * When a font file is not available in the application classpath, the implementation tries to
@@ -196,7 +196,7 @@ extern "C" {
 #define VG_FEATURE_FONT_EXTERNAL (0)
 #endif
 
-/*
+/**
  * @brief Configure this define to set the freetype heap size.
  *
  * The freetype heap size depends on the font used by the application
@@ -206,7 +206,7 @@ extern "C" {
 #define VG_FEATURE_FREETYPE_HEAP_SIZE (80 * 1024)
 #endif
 
-/*
+/**
  * @brief Configure this define to set the complex layouter heap size.
  *
  * @see VG_FEATURE_FONT_COMPLEX_LAYOUT
@@ -220,7 +220,7 @@ extern "C" {
 
 #if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
 
-/*
+/**
  * @brief Set this define to 1 to enable the support of MicroVG BufferedVectorImage
  * (disabled by default).
  *
@@ -231,7 +231,7 @@ extern "C" {
 #define VG_FEATURE_BUFFERED_VECTOR_IMAGE (0)
 #endif
 
-/*
+/**
  * @brief The drawing functions to target the BufferedVectorImage have by default the
  * identifier 1.
  */
@@ -242,6 +242,103 @@ extern "C" {
 #elif defined(VG_FEATURE_BUFFERED_VECTOR_IMAGE) && (VG_FEATURE_BUFFERED_VECTOR_IMAGE == 1)
 #error "The BufferedVectorImage feature requires the support of several Graphics Context formats".
 #endif // if defined(UI_GC_SUPPORTED_FORMATS) && (UI_GC_SUPPORTED_FORMATS > 1)
+
+// -----------------------------------------------------------------------------
+// MicroVG's Log Options
+// -----------------------------------------------------------------------------
+
+/**
+ * @brief Set this define to 1 to compile the informative logs (disabled by default).
+ *
+ * The error logs are always compiled.
+ */
+#ifndef VG_LOG_INFO_ENABLED
+#define VG_LOG_INFO_ENABLED (0)
+#endif
+
+/*
+ * The logs go through the VEE Port Essentials logger when veeport_logger.h is in the include path,
+ * and through "printf" otherwise, or when the toolchain does not support __has_include. Each macro
+ * below can be defined by the VEE Port to route the logs elsewhere.
+ */
+#if defined __has_include
+#if __has_include("veeport_logger.h")
+#define VG_LOG_VEEPORT_LOGGER_FOUND
+#endif
+#endif
+
+#ifdef VG_LOG_VEEPORT_LOGGER_FOUND
+
+#include "veeport_logger.h"
+
+/**
+ * @brief Name of the MicroVG log module in the VEE Port Essentials logger.
+ */
+#ifndef VG_LOG_MODULE_NAME
+#define VG_LOG_MODULE_NAME "vg"
+#endif
+
+/**
+ * @brief Level of the MicroVG log module in the VEE Port Essentials logger.
+ *
+ * Defaults to the informative level: VG_LOG_INFO_ENABLED already selects the informative logs at
+ * compile time.
+ */
+#ifndef VG_LOG_LEVEL
+#define VG_LOG_LEVEL VEEPORT_LOGGER_LEVEL_INF
+#endif
+
+/**
+ * @brief Declares the log module, once at the top of each source file that logs.
+ */
+#ifndef VG_LOG_DECLARE_MODULE
+#define VG_LOG_DECLARE_MODULE() VEEPORT_LOGGER_DEFINE_MODULE(VG_LOG_MODULE_NAME, VG_LOG_LEVEL)
+#endif
+
+/**
+ * @brief Prints an error log. The format has no trailing line return.
+ */
+#ifndef VG_LOG_ERROR_PRINT
+#define VG_LOG_ERROR_PRINT(...) VEEPORT_LOGGER_LOG_ERR(__VA_ARGS__)
+#endif
+
+/**
+ * @brief Prints an informative log. The format has no trailing line return.
+ */
+#ifndef VG_LOG_INFO_PRINT
+#define VG_LOG_INFO_PRINT(...) VEEPORT_LOGGER_LOG_INF(__VA_ARGS__)
+#endif
+
+#else // VG_LOG_VEEPORT_LOGGER_FOUND
+
+/**
+ * @brief Declares the log module, once at the top of each source file that logs.
+ *
+ * Empty: "printf" needs no declaration.
+ */
+#ifndef VG_LOG_DECLARE_MODULE
+#define VG_LOG_DECLARE_MODULE()
+#endif
+
+/**
+ * @brief Prints an error log through "printf". The format has no trailing line return.
+ */
+#ifndef VG_LOG_ERROR_PRINT
+// cppcheck-suppress [misra-c2012-21.6] required to use "printf"
+#include <stdio.h>
+#define VG_LOG_ERROR_PRINT(fmt, ...) (void)printf("[ERROR - MICROVG] : " fmt "\n", ## __VA_ARGS__)
+#endif
+
+/**
+ * @brief Prints an informative log through "printf". The format has no trailing line return.
+ */
+#ifndef VG_LOG_INFO_PRINT
+// cppcheck-suppress [misra-c2012-21.6] required to use "printf"
+#include <stdio.h>
+#define VG_LOG_INFO_PRINT(fmt, ...) (void)printf("[INFO - MICROVG] : " fmt "\n", ## __VA_ARGS__)
+#endif
+
+#endif // VG_LOG_VEEPORT_LOGGER_FOUND
 
 // -----------------------------------------------------------------------------
 // EOF

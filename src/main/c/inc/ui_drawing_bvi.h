@@ -9,14 +9,14 @@
 extern "C" {
 #endif
 
-/*
+/**
  * @file
  * @brief Implementation of a set of ui_drawing.h drawing functions (MicroUI and
  * Drawing libraries). These are implementations over a BufferedVectorImage and
  * the destination buffer format is the BufferedVectorImage format. When the drawing
  * cannot be performed for any reason, the stub implementation is used instead.
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 #include "vg_configuration.h"
@@ -34,7 +34,7 @@ extern "C" {
 // Defines
 // --------------------------------------------------------------------------------
 
-/*
+/**
  * @brief Redirects all ui_drawing.h functions to the BufferedVectorImage functions
  */
 

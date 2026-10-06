@@ -15,14 +15,13 @@
  * The encoding can be overridden, see "[optional]: weak functions" in "vg_path.h"
  *
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 #include "vg_configuration.h"
 
-#if defined(VG_FEATURE_PATH) && defined(VG_FEATURE_PATH_DUAL_ARRAY) && (VG_FEATURE_PATH == VG_FEATURE_PATH_DUAL_ARRAY)
-
-// TODO Merge with LLVG_PATH_impl.c
+#if defined(VG_FEATURE_PATH) && defined(VG_FEATURE_PATH_SINGLE_ARRAY) && \
+	(VG_FEATURE_PATH == VG_FEATURE_PATH_SINGLE_ARRAY)
 
 // -----------------------------------------------------------------------------
 // Includes
@@ -48,33 +47,20 @@
  * buffer is not large enough to contain the requested command, returns a negative
  * number corresponding to size the buffer must be enlarged for this command.
  */
-static int32_t _extend_path(VG_PATH_HEADER_t *path, jint array_length, VG_path_command_t cmd, uint32_t nb_params) {
-	size_t current_size = VG_PATH_get_path_header_size() + (path->param_length * sizeof(VG_path_param_t)) +
-	                      (path->cmd_length * sizeof(VG_path_command_t));
-	size_t required_size = current_size + VG_PATH_get_path_command_size(cmd, nb_params);
-
+static int32_t _extend_path(VG_PATH_HEADER_t *path, jint length, jint cmd, uint32_t nb_fields) {
+	uint32_t index = VG_PATH_get_path_header_size() + path->data_size;
+	uint32_t extra_size = VG_PATH_get_path_command_size(cmd, nb_fields);
 	int32_t ret;
 
-	if (required_size > array_length) {
-		ret = array_length - required_size;
+	if (length >= (index + extra_size)) {
+		path->data_size += extra_size;
+
+		// return next free space (return a positive value)
+		ret = index;
 	} else {
-		if (
-			// Parameters would write over the commands
-			// or
-			// Commands would go past the array end
-			((uint8_t *)VG_PATH_get_path_param_end(path)) + (nb_params * sizeof(VG_path_param_t)) >
-			(uint8_t *)VG_PATH_get_path_command_begin(path)
-			|| ((uint8_t *)VG_PATH_get_path_command_end(path)) + sizeof(VG_path_command_t) >
-			((uint8_t *)path) + array_length
-			) {
-			size_t new_cmd_offset = array_length - VG_PATH_get_path_header_size() - ((path->cmd_length + 1u) *
-			                                                                         sizeof(VG_path_command_t));
-			// memmove is used instead of memcpy as the source and destination are likely to overlap.
-			(void)memmove(((uint8_t *)VG_PATH_get_path_param_begin(path)) + new_cmd_offset,
-			              VG_PATH_get_path_command_begin(path), path->cmd_length * sizeof(VG_path_command_t));
-			path->cmd_offset = new_cmd_offset;
-		}
-		ret = 0;
+		// too small buffer, ret is the required extra size
+		// (return a negative value)
+		ret = -extra_size;
 	}
 
 	return ret;
@@ -83,7 +69,7 @@ static int32_t _extend_path(VG_PATH_HEADER_t *path, jint array_length, VG_path_c
 static int32_t _close_path(VG_PATH_HEADER_t *path, jint length, jfloat x1, jfloat y1, jfloat x2, jfloat y2) {
 	int32_t index = _extend_path(path, length, LLVG_PATH_CMD_CLOSE, 0);
 	int32_t ret = LLVG_SUCCESS;
-	if (index == 0) {
+	if (index > 0) {
 		// finalizes the path by storing the path's bounds
 		path->bounds_xmin = x1;
 		path->bounds_xmax = x2;
@@ -114,80 +100,61 @@ BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_get_path_header_size(void) {
 // See the header file for the function documentation
 BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_get_path_command_size(jint command, uint32_t nbParams) {
 	(void)command;
-	return (1u * sizeof(VG_path_command_t)) + (nbParams * sizeof(VG_path_param_t));
+	return (nbParams + (uint32_t)1 /* command */) * sizeof(uint32_t);
 }
 
 // See the header file for the function documentation
-BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_append_path_command0(jbyte *bytes, jint array_length, jint cmd) {
-	(void)array_length;
-
-	VG_PATH_HEADER_t *path = (VG_PATH_HEADER_t *)bytes;
-
-	*VG_PATH_get_path_command_end(path) = VG_PATH_convert_path_command(cmd);
-
-	path->cmd_length += 1u;
-
-	return LLVG_SUCCESS;
+BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_append_path_command0(jbyte *path, jint offset, jint cmd) {
+	uint32_t *data = (uint32_t *)(path + offset);
+	*data = VG_PATH_convert_path_command(cmd);
+	return sizeof(uint32_t);
 }
 
 // See the header file for the function documentation
-BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_append_path_command1(jbyte *bytes, jint array_length, jint cmd, jfloat x,
-                                                            jfloat y) {
-	(void)array_length;
-	VG_PATH_HEADER_t *path = (VG_PATH_HEADER_t *)bytes;
-
-	*VG_PATH_get_path_command_end(path) = VG_PATH_convert_path_command(cmd);
-
-	VG_path_param_t *param_ptr = VG_PATH_get_path_param_end(path);
-	*(param_ptr++) = x;
-	*(param_ptr++) = y;
-
-	path->cmd_length += 1u;
-	path->param_length += 2u;
-
-	return LLVG_SUCCESS;
+BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_append_path_command1(jbyte *path, jint offset, jint cmd, jfloat x, jfloat y) {
+	uint32_t *data = (uint32_t *)(path + offset);
+	*data = VG_PATH_convert_path_command(cmd);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(x);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(y);
+	return (uint32_t)3 * sizeof(uint32_t);
 }
 
 // See the header file for the function documentation
-BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_append_path_command2(jbyte *bytes, jint array_length, jint cmd, jfloat x1,
-                                                            jfloat y1, jfloat x2, jfloat y2) {
-	(void)array_length;
-	VG_PATH_HEADER_t *path = (VG_PATH_HEADER_t *)bytes;
-
-	*VG_PATH_get_path_command_end(path) = VG_PATH_convert_path_command(cmd);
-
-	VG_path_param_t *param_ptr = VG_PATH_get_path_param_end(path);
-	*(param_ptr++) = x1;
-	*(param_ptr++) = y1;
-	*(param_ptr++) = x2;
-	*(param_ptr++) = y2;
-
-	path->cmd_length += 1u;
-	path->param_length += 4u;
-
-	return LLVG_SUCCESS;
+BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_append_path_command2(jbyte *path, jint offset, jint cmd, jfloat x1, jfloat y1,
+                                                            jfloat x2, jfloat y2) {
+	uint32_t *data = (uint32_t *)(path + offset);
+	*data = VG_PATH_convert_path_command(cmd);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(x1);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(y1);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(x2);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(y2);
+	return (uint32_t)5 * sizeof(uint32_t);
 }
 
 // See the header file for the function documentation
-BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_append_path_command3(jbyte *bytes, jint array_length, jint cmd, jfloat x1,
-                                                            jfloat y1, jfloat x2, jfloat y2, jfloat x3, jfloat y3) {
-	(void)array_length;
-	VG_PATH_HEADER_t *path = (VG_PATH_HEADER_t *)bytes;
-
-	*VG_PATH_get_path_command_end(path) = VG_PATH_convert_path_command(cmd);
-
-	VG_path_param_t *param_ptr = VG_PATH_get_path_param_end(path);
-	*(param_ptr++) = x1;
-	*(param_ptr++) = y1;
-	*(param_ptr++) = x2;
-	*(param_ptr++) = y2;
-	*(param_ptr++) = x3;
-	*(param_ptr++) = y3;
-
-	path->cmd_length += 1u;
-	path->param_length += 6u;
-
-	return LLVG_SUCCESS;
+BSP_DECLARE_WEAK_FCNT uint32_t VG_PATH_append_path_command3(jbyte *path, jint offset, jint cmd, jfloat x1, jfloat y1,
+                                                            jfloat x2, jfloat y2, jfloat x3, jfloat y3) {
+	uint32_t *data = (uint32_t *)(path + offset);
+	*data = VG_PATH_convert_path_command(cmd);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(x1);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(y1);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(x2);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(y2);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(x3);
+	++data;
+	*data = JFLOAT_TO_UINT32_t(y3);
+	return (uint32_t)7 * sizeof(uint32_t);
 }
 
 // -----------------------------------------------------------------------------
@@ -201,9 +168,7 @@ jint LLVG_PATH_IMPL_initializePath(jbyte *jpath, jint length) {
 	jint ret = LLVG_SUCCESS;
 
 	if (length >= header_size) {
-		path->cmd_length = 0;
-		path->param_length = 0;
-		path->cmd_offset = 0;
+		path->data_size = 0;
 		path->format = VG_PATH_get_path_encoder_format();
 	} else {
 		// the given byte array is too small
@@ -219,8 +184,8 @@ jint LLVG_PATH_IMPL_appendPathCommand1(jbyte *jpath, jint length, jint cmd, jflo
 	jint ret = LLVG_SUCCESS;
 
 	int32_t index = _extend_path(path, length, cmd, 2);
-	if (index == 0) {
-		(void)VG_PATH_append_path_command1((jbyte *)path, (uint32_t)length, cmd, x, y);
+	if (index > 0) {
+		(void)VG_PATH_append_path_command1((jbyte *)path, (uint32_t)index, cmd, x, y);
 	} else {
 		// too small buffer, ret is the required extra size * -1
 		ret = -index;
@@ -240,8 +205,8 @@ jint LLVG_PATH_IMPL_appendPathCommand2(jbyte *jpath, jint length, jint cmd, jflo
 		ret = _close_path(path, length, x1, y1, x2, y2);
 	} else {
 		int32_t index = _extend_path(path, length, cmd, 4);
-		if (index == 0) {
-			(void)VG_PATH_append_path_command2((jbyte *)path, (uint32_t)length, cmd, x1, y1, x2, y2);
+		if (index > 0) {
+			(void)VG_PATH_append_path_command2((jbyte *)path, (uint32_t)index, cmd, x1, y1, x2, y2);
 		} else {
 			// too small buffer, ret is the required extra size * -1
 			ret = -index;
@@ -258,8 +223,8 @@ jint LLVG_PATH_IMPL_appendPathCommand3(jbyte *jpath, jint length, jint cmd, jflo
 	jint ret = LLVG_SUCCESS;
 
 	int32_t index = _extend_path(path, length, cmd, 6);
-	if (index == 0) {
-		(void)VG_PATH_append_path_command3((jbyte *)path, (uint32_t)length, cmd, x1, y1, x2, y2, x3, y3);
+	if (index > 0) {
+		(void)VG_PATH_append_path_command3((jbyte *)path, (uint32_t)index, cmd, x1, y1, x2, y2, x3, y3);
 	} else {
 		// too small buffer, ret is the required extra size * -1
 		ret = -index;
@@ -271,7 +236,7 @@ jint LLVG_PATH_IMPL_appendPathCommand3(jbyte *jpath, jint length, jint cmd, jflo
 // See the header file for the function documentation
 void LLVG_PATH_IMPL_reopenPath(jbyte *jpath) {
 	VG_PATH_HEADER_t *path = (VG_PATH_HEADER_t *)jpath;
-	path->cmd_length -= 1u;
+	path->data_size -= VG_PATH_get_path_command_size(LLVG_PATH_CMD_CLOSE, 0);
 }
 
 // -----------------------------------------------------------------------------

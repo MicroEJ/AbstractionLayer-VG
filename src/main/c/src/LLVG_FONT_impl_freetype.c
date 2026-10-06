@@ -3,13 +3,15 @@
  *
  * Copyright 2020-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ * Build: 7E4D1F7C
  */
 
 /**
  * @file
  * @brief MicroEJ MicroVG library low level API: implementation over FreeType
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 #include <assert.h>
@@ -37,17 +39,15 @@
 
 #include "vg_freetype.h"
 #include "vg_helper.h"
+#include "vg_outline_box.h"
 #include "vg_trace.h"
 #include "ui_util.h"
+
+VG_LOG_DECLARE_MODULE()
 
 // -----------------------------------------------------------------------------
 // Macros and Defines
 // -----------------------------------------------------------------------------
-
-/*
- * @brief Computes the scale to apply to the font.
- */
-#define GET_SCALE(s, f) ((s) / (f)->units_per_EM)
 
 /*
  * @brief Macro to add a FONT event and its type.
@@ -188,71 +188,113 @@ void VG_FREETYPE_initialize(void) {
 	if (FT_ERR(Ok) == error) {
 		renderer = FT_RENDERER(FT_Get_Module(library, renderer_name));
 		if (0 != renderer) {
-			MEJ_LOG_INFO_MICROVG("Freetype renderer: %s\n", FT_MODULE_CLASS(renderer)->module_name);
+			VG_LOG_INFO("Freetype renderer: %s", FT_MODULE_CLASS(renderer)->module_name);
 		} else {
-			MEJ_LOG_ERROR_MICROVG("No renderer found with name %s\n", renderer_name);
+			VG_LOG_ERROR("No renderer found with name %s", renderer_name);
 		}
 	} else {
-		MEJ_LOG_ERROR_MICROVG("Internal freetype error initializing library, ID = %d\n", error);
+		VG_LOG_ERROR("Internal freetype error initializing library, ID = %d", error);
 	}
+}
+
+// See the header file for the function documentation
+bool VG_FREETYPE_string_span(const jchar *text, jint length, jint face_handle, jfloat letter_spacing_font_units,
+                             jfloat *left, jfloat *right) {
+	FT_Face face = (FT_Face)face_handle;
+	bool has_drawn_glyph = false;
+	float pen = 0.f;
+	float span_left = 0.f;
+	float span_right = 0.f;
+
+	// Layout variables
+	FT_UInt glyph_index = 0;
+
+	int advance_x = 0;
+	int advance_y = 0;
+	int offset_x = 0;
+	int offset_y = 0;
+
+	// A caller that asks for the left edge alone lets the fold stop once the pen has moved past the
+	// leftmost ink the face declares: while the pen grows, no later glyph can reach further left.
+	// The margin of one EM covers what places a glyph left of its own pen, the kerning and the
+	// positioning offsets, and a face declaring a box tighter than the ink it draws. So the stop
+	// needs the pen to grow, which a letter spacing below zero and a negative advance both break.
+	bool stop_on_left = (NULL == right) && (letter_spacing_font_units >= 0.f);
+	const float unreachable_left = MIN((float)face->bbox.xMin, 0.f) - (float)face->units_per_EM;
+
+	// Box the current glyph draws, control points excluded.
+	VG_OUTLINE_BOX box = { .x_min = 0.f, .x_max = 0.f, .y_min = 0.f, .y_max = 0.f, .empty = true };
+
+	VG_HELPER_layout_configure(face_handle, text, length);
+
+	while (VG_HELPER_layout_load_glyph(&glyph_index, &advance_x, &advance_y, &offset_x, &offset_y)) {
+		// At that point the current glyph has been loaded by Freetype
+		VG_OUTLINE_BOX_compute(&face->glyph->outline, &box);
+
+		// A space carries a real glyph index and an empty box, so the box is what says whether the
+		// glyph draws. An empty one contributes no edge, at either end.
+		if (!box.empty) {
+			float glyph_left = pen + (float)offset_x + box.x_min;
+			float glyph_right = pen + (float)offset_x + box.x_max;
+
+			if (!has_drawn_glyph) {
+				span_left = glyph_left;
+				span_right = glyph_right;
+				has_drawn_glyph = true;
+			} else {
+				span_left = MIN(glyph_left, span_left);
+				span_right = MAX(glyph_right, span_right);
+			}
+		}
+
+		float step = (float)advance_x + letter_spacing_font_units;
+		pen += step;
+
+		// A step that moves the pen backwards is evidence that this face does it, so the fold stops
+		// trusting the bound and reads the string to its end.
+		if (step < 0.f) {
+			stop_on_left = false;
+		}
+
+		if (stop_on_left && has_drawn_glyph && ((pen + unreachable_left) >= span_left)) {
+			break;
+		}
+	}
+
+	// The iteration may have stopped before its end, which leaves the layouter holding it.
+	VG_HELPER_layout_stop();
+
+	if (has_drawn_glyph) {
+		*left = span_left;
+		if (NULL != right) {
+			*right = span_right;
+		}
+	}
+
+	return has_drawn_glyph;
+}
+
+// See the header file for the function documentation
+jfloat VG_FREETYPE_get_scale(jint face_handle, jfloat size) {
+	FT_Face face = (FT_Face)face_handle;
+	return size / (float)face->units_per_EM;
 }
 
 // See the header file for the function documentation
 jfloat VG_FREETYPE_string_width(jchar *text, jint length, jint face_handle, jfloat size, jfloat letter_spacing) {
 	float scaled_width = 0.f;
+	FT_Face face = (FT_Face)face_handle;
 
-	if (size >= 0) {
-		FT_Face face = (FT_Face)face_handle;
-		float scale = GET_SCALE(size, face);
+	if ((size > 0) && (length > 0)) {
+		float scale = VG_FREETYPE_get_scale(face_handle, size);
 
-		int nb_chars = 0;
-		long unscaled_width = 0;
+		float left = 0.f;
+		float right = 0.f;
 
-		// Layout variables
-		FT_UInt glyph_index;  // current glyph index
-		FT_UInt previous_glyph_index = 0; // previous glyph index for kerning
-
-		int advance_x;
-		int previous_advance_x = 0;
-		int previous_offset_x = 0;
-		int advance_y;
-		int offset_x;
-		int offset_y;
-
-		VG_HELPER_layout_configure(face_handle, text, length);
-
-		while (VG_HELPER_layout_load_glyph(&glyph_index, &advance_x, &advance_y, &offset_x, &offset_y)) {
-			// At that point the current glyph has been loaded by Freetype
-			if (0 == previous_glyph_index) {
-				// first glyph: remove the first blank line
-				if (0 != face->glyph->metrics.width) {
-					unscaled_width -= face->glyph->metrics.horiBearingX;
-				} else {
-					unscaled_width -= face->glyph->advance.x;
-				}
-			}
-
-			unscaled_width += advance_x;
-			previous_glyph_index = glyph_index;
-			nb_chars++;
-			// Last call to VG_HELPER_layout_load_glyph clear advance_x and offset_x.
-			// We need to keep them for last glyph measurement
-			previous_advance_x = advance_x;
-			previous_offset_x = offset_x;
+		if (VG_FREETYPE_string_span(text, length, face_handle, letter_spacing / scale, &left, &right)) {
+			assert(right >= left);
+			scaled_width = scale * (right - left);
 		}
-
-		// last glyph: remove the last blank line
-		if (0 != face->glyph->metrics.width) {
-			unscaled_width -= previous_advance_x;
-			unscaled_width += face->glyph->metrics.horiBearingX; // glyph's left blank line
-			unscaled_width += face->glyph->metrics.width; // glyph's width
-			unscaled_width += previous_offset_x; // glyph's offset_x
-		} else {
-			if (0 != unscaled_width) {
-				unscaled_width -= previous_advance_x;
-			}
-		}
-		scaled_width = ((scale * (float)unscaled_width) + (((float)nb_chars - 1) * letter_spacing));
 	}
 
 	return scaled_width;
@@ -283,10 +325,15 @@ jint LLVG_FONT_IMPL_load_font(jchar *font_name, jboolean complex_layout) {
 		}
 #endif // VG_FEATURE_FONT_EXTERNAL
 
-		if (FT_ERR(Ok) == error) {
+		if ((FT_ERR(Ok) == error) && (!FT_IS_SCALABLE(face) || (0U == face->units_per_EM))) {
+			// Every text measure and the drawing divide by the EM size, so a face that declares none
+			// is refused here, once, instead of being guarded in each of them.
+			VG_LOG_ERROR("Font not scalable: %s", (const char *)font_name);
+			__dispose_font((void *)face);
+		} else if (FT_ERR(Ok) == error) {
 			// Use Unicode
 			FT_Select_Charmap(face, ft_encoding_unicode);
-			MEJ_LOG_INFO_MICROVG("Freetype font loaded: %s\n", (const char *)font_name);
+			VG_LOG_INFO("Freetype font loaded: %s", (const char *)font_name);
 
 			int32_t registered = SNI_registerResource((void *)face, (SNI_closeFunction) & __dispose_registered_font,
 			                                          &__register_font_description);
@@ -300,9 +347,9 @@ jint LLVG_FONT_IMPL_load_font(jchar *font_name, jboolean complex_layout) {
 
 			ret = (jint)face;
 		} else if (FT_ERR(Cannot_Open_Resource) != error) {
-			MEJ_LOG_ERROR_MICROVG("An error occurred during font loading: 0x%x, refer to fterrdef.h\n", error);
+			VG_LOG_ERROR("An error occurred during font loading: 0x%x, refer to fterrdef.h", error);
 		} else {
-			MEJ_LOG_ERROR_MICROVG("Resource not found: %s\n", (const char *)font_name);
+			VG_LOG_ERROR("Resource not found: %s", (const char *)font_name);
 		}
 	}
 
@@ -337,35 +384,54 @@ jfloat LLVG_FONT_IMPL_string_height(jchar *text, jint faceHandle, jfloat size) {
 		FT_Face face = (FT_Face)faceHandle;
 		float scaled_height = 0.f;
 
-		if (size >= 0) {
-			float scale = GET_SCALE(size, face);
+		// This fold is the vertical twin of VG_FREETYPE_string_span(), and it stays separate: it
+		// folds boxes where they are loaded rather than at a pen position, so one shared core
+		// would have to carry a horizontal axis this function never advances.
+		if (size > 0) {
+			float scale = VG_FREETYPE_get_scale(faceHandle, size);
 
-			FT_Pos horiBearingYTop = 0;
-			FT_Pos horiBearingYBottom = 0;
+			float drawn_y_top = 0.f;
+			float drawn_y_bottom = 0.f;
+			// Whether a glyph with a non-empty box has been folded in yet: a space carries a
+			// real glyph index, so the glyph index cannot be used to seed the first drawn glyph,
+			// and neither end can start pinned at 0 without biasing a string that draws entirely
+			// on one side of the baseline.
+			bool has_drawn_glyph = false;
 
 			// Layout variables
-			FT_UInt glyph_index;  // current glyph index
-			FT_UInt previous_glyph_index = 0; // previous glyph index for kerning
+			FT_UInt glyph_index = 0;
 
-			int advance_x;
-			int advance_y;
-			int offset_x;
-			int offset_y;
+			int advance_x = 0;
+			int advance_y = 0;
+			int offset_x = 0;
+			int offset_y = 0;
+
+			// Box the current glyph draws, control points excluded.
+			VG_OUTLINE_BOX box = { .x_min = 0.f, .x_max = 0.f, .y_min = 0.f, .y_max = 0.f, .empty = true };
 
 			int length = (int)SNI_getArrayLength(text);
 			VG_HELPER_layout_configure(faceHandle, text, length);
 
 			while (VG_HELPER_layout_load_glyph(&glyph_index, &advance_x, &advance_y, &offset_x, &offset_y)) {
 				// At that point the current glyph has been loaded by Freetype
+				VG_OUTLINE_BOX_compute(&face->glyph->outline, &box);
 
-				FT_Pos yBottom = face->glyph->metrics.horiBearingY - face->glyph->metrics.height;
-				horiBearingYBottom = (0 == previous_glyph_index) ? yBottom : MIN(yBottom, horiBearingYBottom);
-				horiBearingYTop = MAX(face->glyph->metrics.horiBearingY, horiBearingYTop);
-
-				previous_glyph_index = glyph_index;
+				// A space has no outline: without this guard its zeroed, empty box would enter
+				// the fold below and drag the bottom of the string to 0.
+				if (!box.empty) {
+					if (!has_drawn_glyph) {
+						drawn_y_bottom = box.y_min;
+						drawn_y_top = box.y_max;
+						has_drawn_glyph = true;
+					} else {
+						drawn_y_bottom = MIN(box.y_min, drawn_y_bottom);
+						drawn_y_top = MAX(box.y_max, drawn_y_top);
+					}
+				}
 			}
 
-			scaled_height = scale * (float)(horiBearingYTop - horiBearingYBottom);
+			assert(drawn_y_top >= drawn_y_bottom);
+			scaled_height = scale * (drawn_y_top - drawn_y_bottom);
 		}
 
 		ret = scaled_height;
@@ -386,8 +452,8 @@ jfloat LLVG_FONT_IMPL_get_baseline_position(jint faceHandle, jfloat size) {
 		FT_Face face = (FT_Face)faceHandle;
 		float advance_y = 0.f;
 
-		if (size >= 0) {
-			float scale = GET_SCALE(size, face);
+		if (size > 0) {
+			float scale = VG_FREETYPE_get_scale(faceHandle, size);
 			advance_y = (face->ascender * scale);
 		}
 		ret = advance_y;
@@ -406,8 +472,13 @@ jfloat LLVG_FONT_IMPL_get_height(jint faceHandle, jfloat size) {
 		ret = (jfloat)LLVG_RESOURCE_CLOSED;
 	} else {
 		FT_Face face = (FT_Face)faceHandle;
-		float scale = GET_SCALE(size, face);
-		ret = face->height * scale;
+		float scaled_height = 0.f;
+
+		if (size > 0) {
+			scaled_height = face->height * VG_FREETYPE_get_scale(faceHandle, size);
+		}
+
+		ret = scaled_height;
 	}
 
 	LOG_MICROVG_FONT_END(height);
@@ -439,17 +510,20 @@ static void __dispose_font(void *faceHandle) {
 	FT_Face face = (FT_Face)faceHandle;
 
 #if defined VG_FEATURE_FONT_EXTERNAL && (VG_FEATURE_FONT_EXTERNAL == 1)
-	// FT_Done_Face() sets the stream to NULL: have to save it to close the
-	// external resource
+	// FT_Done_Face() frees the stream of a memory font and only closes the stream this CCO allocated
+	// for an external font, so the stream is read here, before it can be freed. Freetype doesn't
+	// recommend to read the flag FT_FACE_FLAG_EXTERNAL_STREAM.
 	FT_Stream stream = face->stream;
+	bool is_own_stream = (&__close_external_resource == stream->close);
 #endif // VG_FEATURE_FONT_EXTERNAL
+
+	// The layouter's state holds this face and reads through it for its whole life, so it goes first.
+	VG_HELPER_layout_dispose((int)faceHandle);
 
 	FT_Done_Face(face);
 
 #if defined VG_FEATURE_FONT_EXTERNAL && (VG_FEATURE_FONT_EXTERNAL == 1)
-	// frees the stream when the font is external (Freetype doesn't recommend
-	// to read the flag FT_FACE_FLAG_EXTERNAL_STREAM)
-	if (&__close_external_resource == stream->close) {
+	if (is_own_stream) {
 		ft_mem_free(library->memory, stream);
 	}
 #endif // VG_FEATURE_FONT_EXTERNAL

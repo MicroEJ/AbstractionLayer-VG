@@ -15,7 +15,7 @@
  * library.
  *
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  * @see ui_drawing.c
  */
 

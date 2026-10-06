@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-/*
+/**
  * @brief Provides elements that allow to trace some external events in the MicroVG trace
  * group.
  *
@@ -28,7 +28,7 @@ extern "C" {
  * 		LLTRACE_record_event_u32(LLVG_TRACE_group, MY_EVENT_OFFSET, my_event_data);
  *
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 // -----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ extern "C" {
  */
 #define LOG_MICROVG_FONT_ID 1
 
-/*
+/**
  * @brief Types of Font events
  */
 #define LOG_MICROVG_FONT_load 0
@@ -56,7 +56,7 @@ extern "C" {
 #define LOG_MICROVG_FONT_stringWidth 3
 #define LOG_MICROVG_FONT_stringHeight 4
 
-/*
+/**
  *  @brief Identifies the traces used by LLVG_PAINTER_impl.c
  */
 #define VG_TRACE_drawPathColor 10
@@ -67,30 +67,30 @@ extern "C" {
 #define VG_TRACE_drawStringOnCircleGradient 15
 #define VG_TRACE_drawImage 16
 
-/*
+/**
  * @brief Useful macros to concatenate easily some strings and defines.
  */
 #define CONCAT_STRINGS(p, s) p ## s
 #define CONCAT_DEFINES(p, s) CONCAT_STRINGS(p, s)
 
-/*
+/**
  * @brief Macro UI_TRACE_IMAGE is only available in UI Pack >= 14.5.2
  */
 #ifndef UI_TRACE_IMAGE
 #define UI_TRACE_IMAGE UI_LOG_BUFFER
 #endif
 
-/*
+/**
  * @brief Macro to add an event and its type.
  */
 #define LOG_MICROVG_START(event, type) LLTRACE_record_event_u32(LLVG_TRACE_group, event, type);
 
-/*
+/**
  * @brief Macro to notify the end of an event and its type.
  */
 #define LOG_MICROVG_END(event, type) LLTRACE_record_event_end_u32(LLVG_TRACE_group, event, type);
 
-/*
+/**
  * @brief Macros to call the trace functions.
  * Macro UI_TRACE_COUNT_ARGS is only available in UI Pack >= 14.5.2
  */
@@ -101,27 +101,27 @@ extern "C" {
 #define VG_TRACE_OFFSET(fn) CONCAT(VG_TRACE_, fn)
 #define VG_TRACE_PARAMS(fn, ...) LLVG_TRACE_group, VG_TRACE_OFFSET(fn), __VA_ARGS__
 
-/*
+/**
  * @brief Add the image's address as a trace
  */
 #define VG_TRACE_IMAGE(img) ((uint32_t)((img)->data))
 
-/*
+/**
  * @brief Starts a VG trace (at least one parameter is required)
  */
 #define VG_TRACE_START(fn, ...) VG_TRACE_FUNCTION(__VA_ARGS__)(VG_TRACE_PARAMS(fn, __VA_ARGS__))
 
-/*
+/**
  * @brief Ends a VG trace (one parameter is required)
  */
 #define VG_TRACE_END(fn, v) LLTRACE_record_event_end_u32(VG_TRACE_PARAMS(fn, v))
 
-/*
+/**
  * @brief Starts a VG trace that denotes a drawing (destination "gc" is required)
  */
 #define VG_TRACE_DRAW_START(fn, gc, ...) VG_TRACE_START(fn, UI_TRACE_IMAGE(&gc->image), __VA_ARGS__)
 
-/*
+/**
  * @brief Ends a VG trace that denotes a drawing
  */
 #define VG_TRACE_DRAW_END VG_TRACE_END
@@ -130,7 +130,7 @@ extern "C" {
 // Fields
 // -----------------------------------------------------------------------------
 
-/*
+/**
  * @brief Identifies the MicroVG group to trace an event.
  */
 extern int32_t LLVG_TRACE_group;

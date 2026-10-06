@@ -9,14 +9,14 @@
 extern "C" {
 #endif
 
-/*
+/**
  * @file
  * @brief Implementation of all drawing functions of vg_drawing.h (library MicroVG).
  * These are stubbed implementations, there is no error but the drawings are not
  * performed. Useful to stub a drawing on a custom destination (custom GraphicsContext
  * format not supported by the Graphics Engine).
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  * @see ui_drawing_stub.h
  */
 

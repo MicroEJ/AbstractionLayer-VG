@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-/*
+/**
  * @file
  * @brief Provides drawing functions called by MicroVG native drawing functions.
  *
@@ -38,7 +38,7 @@ extern "C" {
  */
 void VG_DRAWING_initialize(void);
 
-/*
+/**
  * @brief Tells if the image is closed (closed just before calling the native
  * function).
  *
@@ -48,7 +48,7 @@ void VG_DRAWING_initialize(void);
  */
 bool VG_DRAWING_image_is_closed(const MICROVG_Image *image);
 
-/*
+/**
  * @brief Gets the image size. The image structure format is VEE Port specific.
  *
  * @param[in] image: the image
@@ -57,7 +57,7 @@ bool VG_DRAWING_image_is_closed(const MICROVG_Image *image);
  */
 void VG_DRAWING_get_image_size(const MICROVG_Image *image, float *width, float *height);
 
-/*
+/**
  * @brief Draws a path filled with the specified color (not the one of the Graphics Context).
  *
  * @param[in] gc: the destination
@@ -72,7 +72,7 @@ void VG_DRAWING_get_image_size(const MICROVG_Image *image, float *width, float *
 DRAWING_Status VG_DRAWING_drawPath(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule, jint blend,
                                    jint color);
 
-/*
+/**
  * @brief Draws a path filled with a linear gradient.
  *
  * @param[in] gc: the destination
@@ -89,7 +89,7 @@ DRAWING_Status VG_DRAWING_drawPath(MICROUI_GraphicsContext *gc, jbyte *path, jfl
 DRAWING_Status VG_DRAWING_drawGradient(MICROUI_GraphicsContext *gc, jbyte *path, jfloat *matrix, jint fillRule,
                                        jint alpha, jint blend, jint *gradient, jfloat *gradientMatrix);
 
-/*
+/**
  * @brief  Draws a string with the color of the Graphics Context.
  *
  * The top/left position of the first drawn character is placed at
@@ -110,7 +110,7 @@ DRAWING_Status VG_DRAWING_drawGradient(MICROUI_GraphicsContext *gc, jbyte *path,
 DRAWING_Status VG_DRAWING_drawString(MICROUI_GraphicsContext *gc, jchar *text, jint length, jint faceHandle,
                                      jfloat size, jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing);
 
-/*
+/**
  * @brief Draws a string with a linear gradient.
  *
  * @param[in] gc the MicroUI GraphicsContext target.
@@ -131,7 +131,7 @@ DRAWING_Status VG_DRAWING_drawStringGradient(MICROUI_GraphicsContext *gc, jchar 
                                              jfloat size, jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing,
                                              jint *gradientData, jfloat *gradientMatrix);
 
-/*
+/**
  * @brief Draws a string along a circle, with the color of the Graphics Context.
  *
  * @param[in] gc the MicroUI GraphicsContext target.
@@ -152,7 +152,7 @@ DRAWING_Status VG_DRAWING_drawStringOnCircle(MICROUI_GraphicsContext *gc, jchar 
                                              jfloat size, jfloat *matrix, jint alpha, jint blend, jfloat letterSpacing,
                                              jfloat radius, jint direction);
 
-/*
+/**
  * @brief Draws a string along a circle, with a linear gradient.
  *
  * @param[in] gc the MicroUI GraphicsContext target.
@@ -176,15 +176,15 @@ DRAWING_Status VG_DRAWING_drawStringOnCircleGradient(MICROUI_GraphicsContext *gc
                                                      jint blend, jfloat letterSpacing, jfloat radius, jint direction,
                                                      jint *gradientData, jfloat *gradientMatrix);
 
-/*
+/**
  * @brief Draws an image with transformation and opacity. Optionally apply an animation and / or a color filtering.
  *
  * @param[in] gc the graphics context to draw on
  * @param[in] image the image to draw
  * @param[in] matrix the transformation matrix to apply
  * @param[in] alpha the global opacity rendering value
- * @param[in] elapsedTime the elapsed time since the beginning of the animation, in milliseconds
- * @param[in] colorMatrix the color matrix used to transform colors, may be null (means no color deformation)
+ * @param[in] elapsed the elapsed time since the beginning of the animation, in milliseconds
+ * @param[in] color_matrix the color matrix used to transform colors, may be null (means no color deformation)
  * @param[out] errno the error code to return to MicroVG.
  *
  * @return the drawing status.

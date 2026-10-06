@@ -3,6 +3,8 @@
  *
  * Copyright 2022-2026 MicroEJ Corp. All rights reserved.
  * MicroEJ Corp. PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ * Build: 7E4D1F7C
  */
 
 /**
@@ -10,7 +12,7 @@
  * @brief MicroEJ MicroVG library low level API: helper to implement library natives
  * methods.
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 #include "vg_configuration.h"
@@ -21,17 +23,17 @@
 
 /*
  * Sanity check between the expected version of the VG Pack used by the VEE Port
- * and the actual version of this file (MicroVG C Module's file).
+ * and the actual version of this file (MicroVG Abstraction Layer's file).
  *
  * If an error is raised here, it means that a new version of the VG Pack has been
- * installed in the VEE Port or the MicroVG C Module has been updated without any change
+ * installed in the VEE Port or the MicroVG Abstraction Layer has been updated without any change
  * in the VEE Port. In both cases, the versions must be coherent (see the Release
  * Notes: https://docs.microej.com/en/latest/VEEPortingGuide/vgReleaseNotes.html).
  */
 
 #if (defined(LLVG_MAJOR_VERSION) && (LLVG_MAJOR_VERSION != 1)) || (defined(LLVG_MINOR_VERSION) && \
 	(LLVG_MINOR_VERSION < 8))
-#error "This C Module is only compatible with VG Pack [1.8.0,2.0.0["
+#error "This Abstraction Layer is only compatible with VG Pack [1.8.0,2.0.0["
 #endif
 
 // -----------------------------------------------------------------------------
@@ -51,7 +53,10 @@
 
 #if defined VG_FEATURE_FONT
 #include <freetype/internal/ftobjs.h>
+#include <inttypes.h>
 #include "vg_freetype.h"
+
+VG_LOG_DECLARE_MODULE()
 #endif
 
 #if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
@@ -109,6 +114,10 @@ static hb_glyph_position_t *glyph_pos;
 static unsigned int glyph_count;
 static int current_glyph;
 static hb_buffer_t *buf;
+// The shaper built from the font face named by current_faceHandle, and that face's handle. A
+// handle of 0 means no shaper is held.
+static hb_font_t *hb_font;
+static jint current_faceHandle;
 #endif
 
 // -----------------------------------------------------------------------------
@@ -187,6 +196,10 @@ int VG_HELPER_get_utf(const unsigned short *textCharRam, int length, int *offset
 #if defined VG_FEATURE_FONT
 // See the header file for the function documentation
 void VG_HELPER_layout_configure(int faceHandle, const unsigned short *text, int length) {
+	// Configuring starts a new iteration, so whatever a caller that stopped before the end of its own
+	// iteration left open is released here.
+	VG_HELPER_layout_stop();
+
 	face = (FT_Face)faceHandle;
 	// For Misra rule 2.7
 	(void)text;
@@ -200,14 +213,12 @@ void VG_HELPER_layout_configure(int faceHandle, const unsigned short *text, int 
 		previous_glyph_index = 0;
 	} else {
 #if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
-		static hb_font_t *hb_font;
-		static jint current_faceHandle = 0;
 		// load font in Harfbuzz only when faceHandle changes
 		if (faceHandle != current_faceHandle) {
 			if (0 != current_faceHandle) {
 				hb_font_destroy(hb_font);
 			}
-			// FT_Set_Pixel_Sizes() must be called before hb_ft_font_create() see issue M0092MEJAUI-2643
+			// FT_Set_Pixel_Sizes() must be called before hb_ft_font_create()
 			FT_Set_Pixel_Sizes(face, 0, face->units_per_EM);  /* set character size */
 			hb_font = hb_ft_font_create(face, NULL);
 			current_faceHandle = faceHandle;
@@ -226,6 +237,19 @@ void VG_HELPER_layout_configure(int faceHandle, const unsigned short *text, int 
 		current_glyph = 0;
 #endif // VG_FEATURE_FONT_COMPLEX_LAYOUT
 	}
+}
+
+// See the header file for the function documentation
+void VG_HELPER_layout_dispose(int faceHandle) {
+#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
+	if (faceHandle == current_faceHandle) {
+		hb_font_destroy(hb_font);
+		hb_font = NULL;
+		current_faceHandle = 0;
+	}
+#else
+	(void)faceHandle;
+#endif // VG_FEATURE_FONT_COMPLEX_LAYOUT
 }
 
 #endif /* if defined VG_FEATURE_FONT */
@@ -250,8 +274,8 @@ bool VG_HELPER_layout_load_glyph(uint32_t *glyph_idx, int *x_advance, int *y_adv
 
 			int error = FT_Load_Glyph(face, glyph_index, FT_LOAD_NO_SCALE);
 			if (FT_ERR(Ok) != error) {
-				MEJ_LOG_ERROR_MICROVG("Error while loading glyphid %d: 0x%x, refer to fterrdef.h\n", glyph_index,
-				                      error);
+				VG_LOG_ERROR("Error while loading glyphid %u: 0x%x, refer to fterrdef.h", glyph_index,
+				             error);
 			}
 
 			*x_advance = face->glyph->advance.x;
@@ -287,18 +311,34 @@ bool VG_HELPER_layout_load_glyph(uint32_t *glyph_idx, int *x_advance, int *y_adv
 			// Load glyph
 			int error = FT_Load_Glyph(face, *glyph_idx, FT_LOAD_NO_SCALE);
 			if (FT_ERR(Ok) != error) {
-				MEJ_LOG_ERROR_MICROVG("Error while loading glyphid %d: 0x%x, refer to fterrdef.h\n", *glyph_idx, error);
+				VG_LOG_ERROR("Error while loading glyphid %" PRIu32 ": 0x%x, refer to fterrdef.h", *glyph_idx, error);
 			}
 
 			ret = true;
 		} else {
-			hb_buffer_destroy(buf);
+			if (NULL != buf) {
+				hb_buffer_destroy(buf);
+				buf = NULL;
+			}
 			ret = false;
 		}
 #endif // VG_FEATURE_FONT_COMPLEX_LAYOUT
 	}
 
 	return ret;
+}
+
+// See the header file for the function documentation
+void VG_HELPER_layout_stop(void) {
+#if defined VG_FEATURE_FONT_COMPLEX_LAYOUT && (VG_FEATURE_FONT_COMPLEX_LAYOUT == 1)
+	if (NULL != buf) {
+		// The buffer, not the remaining count, is what says an iteration is still open: the count
+		// reaches zero when the last glyph is handed out, one call before the iteration ends.
+		hb_buffer_destroy(buf);
+		buf = NULL;
+		glyph_count = 0;
+	}
+#endif // VG_FEATURE_FONT_COMPLEX_LAYOUT
 }
 
 #endif /* if defined VG_FEATURE_FONT */

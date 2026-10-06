@@ -11,7 +11,7 @@
  * and LLVG_PATH_PAINTER_impl.h.
  *
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 #include "vg_configuration.h"

@@ -10,7 +10,7 @@
  * @brief This file implements all MicroVG drawing native functions.
  * @see LLVG_PAINTER_impl.h file comment
  * @author MicroEJ Developer Team
- * @version 8.0.1
+ * @version 8.0.3
  */
 
 // -----------------------------------------------------------------------------
@@ -196,9 +196,7 @@ jint LLVG_PAINTER_IMPL_drawImage(MICROUI_GraphicsContext *gc, MICROVG_Image *ima
 			VG_HELPER_prepare_matrix(translated_matrix, x, y, matrix);
 			status = VG_DRAWING_drawImage(gc, image, translated_matrix, alpha, elapsed, color_matrix, &error);
 
-			/* FIXME LLVG_OUT_OF_MEMORY errors are not returned as they are reported with error flags.
-			 * See M0092MEJAUI-2908.
-			 */
+			/* FIXME LLVG_OUT_OF_MEMORY errors are not returned as they are reported with error flags. */
 			if (LLVG_OUT_OF_MEMORY == error) {
 				error = LLVG_SUCCESS;
 			}
